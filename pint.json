@@ -1,0 +1,14 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "group_import": true,
+        "single_import_per_statement": false,
+        "no_unused_imports": true,
+        "simplified_null_return": true,
+        "array_indentation": false,
+        "new_with_parentheses": {
+            "anonymous_class": true,
+            "named_class": true
+        }
+    }
+}

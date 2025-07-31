@@ -1,0 +1,37 @@
+<?php
+
+namespace EliteDevSquad\SidecarExtensionBridge\Providers;
+
+use EliteDevSquad\SidecarExtensionBridge\Http\Middleware\SidecarMiddleware;
+use EliteDevSquad\SidecarExtensionBridge\SidecarBridge;
+use Illuminate\Routing\Router;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+
+class SidecarServiceProvider extends BaseServiceProvider
+{
+    public function boot(Router $router): void
+    {
+        $this->publishes([
+            __DIR__.'/../../resources/config/devsquad-sidecar-bridge.php' => config_path('devsquad-sidecar-bridge.php'),
+        ], 'devsquad-sidecar-bridge');
+
+        $this->loadRoutesFrom(__DIR__.'/../../resources/routes.php');
+
+        $this->app->singleton(
+            'devsquad-sidecar-bridge',
+            function () {
+                return new SidecarBridge();
+            }
+        );
+
+        $router->aliasMiddleware('devsquad-sidecar-auth', SidecarMiddleware::class);
+    }
+
+    public function register(): void
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/../../resources/config/devsquad-sidecar-bridge.php',
+            'devsquad-sidecar-bridge'
+        );
+    }
+}
