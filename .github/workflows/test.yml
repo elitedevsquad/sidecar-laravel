@@ -56,4 +56,4 @@ jobs:
         run: composer pint
 
       - name: Pest - Run Tests
-        run: test:coverage
+        run: composer test:coverage
