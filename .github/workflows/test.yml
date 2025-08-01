@@ -1,0 +1,59 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: [ 8.4, 8.3, 8.2 ]
+        laravel-version: [ 12.*, 11.* ]
+      fail-fast: false
+
+    name: PHP:${{ matrix.php-version }} / L:${{ matrix.laravel-version }}
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: ci
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: fileinfo, dom, curl, libxml, mbstring, bcmath
+          coverage: none
+          tools: composer:v2
+
+      - name: Install Dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel-version }}" --no-interaction --no-update
+          composer install
+
+      - name: Pint - Code Style Fixer
+        if: matrix.php-version == '8.3'
+        run: composer pint
+
+      - name: Execute tests
+        run: composer test

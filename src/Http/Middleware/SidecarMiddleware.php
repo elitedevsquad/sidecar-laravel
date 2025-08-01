@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
+/** @codeCoverageIgnore */
 class SidecarMiddleware
 {
     public function handle(Request $request, Closure $next)

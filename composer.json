@@ -15,7 +15,9 @@
         "laradumps/laradumps": "^4.3"
     },
     "scripts": {
-        "test:fix": "./vendor/bin/pint"
+        "fix": "./vendor/bin/pint",
+        "pint": "./vendor/bin/pint --test",
+        "test": "./vendor/bin/pest"
     },
     "autoload": {
         "psr-4": {
