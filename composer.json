@@ -17,7 +17,8 @@
     "scripts": {
         "fix": "./vendor/bin/pint",
         "pint": "./vendor/bin/pint --test",
-        "test": "./vendor/bin/pest"
+        "test": "./vendor/bin/pest",
+        "test:coverage": "./vendor/bin/pest --coverage"
     },
     "autoload": {
         "psr-4": {

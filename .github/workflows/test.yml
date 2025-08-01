@@ -43,7 +43,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           extensions: fileinfo, dom, curl, libxml, mbstring, bcmath
-          coverage: none
+          coverage: xdebug
           tools: composer:v2
 
       - name: Install Dependencies
@@ -55,5 +55,5 @@ jobs:
         if: matrix.php-version == '8.3'
         run: composer pint
 
-      - name: Execute tests
-        run: composer test
+      - name: Pest - Run Tests
+        run: test:coverage
