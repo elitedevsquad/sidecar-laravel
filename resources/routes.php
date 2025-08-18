@@ -3,7 +3,7 @@
 use EliteDevSquad\SidecarExtensionBridge\Http\Controllers\{ExecuteCommandController, ExecuteTinkerController, GetSidecarDataController, LoginAsUserController, SetSidecarTokenController};
 use Illuminate\Support\Facades\Route;
 
-if (! app()->isProduction()) {
+if (!app()->isProduction()) {
     Route::prefix('__devsquad-sidecar')->middleware(['web'])->group(function () {
         Route::post('/token', SetSidecarTokenController::class)
             ->name('devsquad-sidecar.token');

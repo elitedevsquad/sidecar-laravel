@@ -7,9 +7,9 @@ class SidecarBridge
     public static string $userModel = \App\Models\User::class;
 
     public static array $userMap = [
-        'id' => 'id',
-        'name' => 'first_name',
-        'role' => 'role',
+        'id'    => 'id',
+        'name'  => 'first_name',
+        'role'  => 'role',
         'email' => 'email',
     ];
 

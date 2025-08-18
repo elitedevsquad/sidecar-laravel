@@ -10,21 +10,23 @@ use Illuminate\Support\Facades\Auth;
 
 class GetSidecarDataController
 {
-    public function __construct(private readonly SidecarBridge $bridge) {}
+    public function __construct(private readonly SidecarBridge $bridge)
+    {
+    }
 
     public function __invoke(): JsonResponse
     {
         return response()->json([
-            'enabled' => true,
+            'enabled'      => true,
             'project_name' => config('app.name'),
-            'currentUser' => Auth::id(),
-            'branch' => $this->getBranch(),
-            'database' => config('database.connections.'.config('database.default').'.database'),
-            'environment' => app()->environment(),
-            'users' => $this->getUsers(),
-            'links' => config('devsquad-sidecar-bridge.links'),
-            'commands' => config('devsquad-sidecar-bridge.commands'),
-            'branch_url' => config('devsquad-sidecar-bridge.branch_url'),
+            'currentUser'  => Auth::id(),
+            'branch'       => $this->getBranch(),
+            'database'     => config('database.connections.' . config('database.default') . '.database'),
+            'environment'  => app()->environment(),
+            'users'        => $this->getUsers(),
+            'links'        => config('devsquad-sidecar-bridge.links'),
+            'commands'     => config('devsquad-sidecar-bridge.commands'),
+            'branch_url'   => config('devsquad-sidecar-bridge.branch_url'),
         ]);
     }
 
@@ -32,7 +34,7 @@ class GetSidecarDataController
     {
         /** @var Model $userModel */
         $userModel = $this->bridge->getUserModel();
-        $users = app($userModel)::query()->get();
+        $users     = app($userModel)::query()->get();
 
         return SidecarUserResource::collection($users)->all();
     }

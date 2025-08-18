@@ -23,13 +23,13 @@ abstract class TestCase extends BaseTestCase
         $app['config']->set('session.driver', 'array');
 
         $app['config']->set('database.connections.testbench', [
-            'driver' => env('DB_DRIVER', 'sqlite'),
-            'host' => env('DB_HOST', ''),
-            'port' => env('DB_PORT'),
+            'driver'   => env('DB_DRIVER', 'sqlite'),
+            'host'     => env('DB_HOST', ''),
+            'port'     => env('DB_PORT'),
             'username' => env('DB_USERNAME'),
             'password' => env('DB_PASSWORD'),
             'database' => env('DB_DATABASE', ':memory:'),
-            'prefix' => '',
+            'prefix'   => '',
         ]);
     }
 

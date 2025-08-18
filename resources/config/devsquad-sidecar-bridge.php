@@ -41,19 +41,19 @@ return [
     'links' => [
         [
             'name' => 'Admin',
-            'url' => config('app.url').'/admin',
+            'url'  => config('app.url') . '/admin',
         ],
         [
             'name' => 'Mail',
-            'url' => env('DS_SIDECAR_LINK_MAIL', ''),
+            'url'  => env('DS_SIDECAR_LINK_MAIL', ''),
         ],
         [
             'name' => 'Envoyer',
-            'url' => env('DS_SIDECAR_LINK_ENVOYER', ''),
+            'url'  => env('DS_SIDECAR_LINK_ENVOYER', ''),
         ],
         [
             'name' => 'Horizon',
-            'url' => config('app.url').'/horizon',
+            'url'  => config('app.url') . '/horizon',
         ],
     ],
 
@@ -69,15 +69,15 @@ return [
 
     'commands' => [
         [
-            'name' => 'Clear cached optimized files',
+            'name'    => 'Clear cached optimized files',
             'command' => 'optimize:clear',
         ],
         [
-            'name' => 'Reset anonymous access restriction',
+            'name'    => 'Reset anonymous access restriction',
             'command' => 'app:reset-anonymous-access',
         ],
         [
-            'name' => 'Clear all Horizon queues',
+            'name'    => 'Clear all Horizon queues',
             'command' => 'horizon:clear-all',
         ],
     ],

@@ -16,7 +16,7 @@ readonly class LoginAsUserController
         Auth::loginUsingId($validated['user_id']);
 
         return response()->json([
-            'status' => 'success',
+            'status'   => 'success',
             'redirect' => '/',
         ]);
     }
