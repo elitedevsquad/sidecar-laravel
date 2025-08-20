@@ -13,14 +13,14 @@ class SidecarUserResource extends JsonResource
     public function toArray(Request $request): array
     {
         /** @var SidecarBridge $bridge */
-        $bridge  = app(SidecarBridge::class);
+        $bridge = app(SidecarBridge::class);
         $userMap = $bridge->getUserMap();
 
         return [
-            'id'    => $this->resource->{$userMap['id']},
-            'name'  => $this->resource->{$userMap['name']},
+            'id' => $this->resource->{$userMap['id']},
+            'name' => $this->resource->{$userMap['name']},
             'email' => $this->resource->{$userMap['email']},
-            'role'  => $this->resource->{$userMap['role']} ?? 'user',
+            'role' => $this->resource->{$userMap['role']} ?? 'user',
         ];
     }
 }

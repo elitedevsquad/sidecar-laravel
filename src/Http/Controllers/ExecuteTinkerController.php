@@ -17,7 +17,7 @@ readonly class ExecuteTinkerController
             Artisan::call('tinker', ['--execute' => $validated['code']]);
             $output = Artisan::output();
         } catch (Throwable $e) {
-            $output = 'Error executing code: ' . $e->getMessage();
+            $output = 'Error executing code: '.$e->getMessage();
         }
 
         $output = str($output)->after('for this Tinker session.')->trim();

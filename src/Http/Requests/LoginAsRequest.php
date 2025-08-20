@@ -15,7 +15,7 @@ class LoginAsRequest extends FormRequest
 
     public function rules(SidecarBridge $bridge): array
     {
-        $userModel    = $bridge->getUserModel();
+        $userModel = $bridge->getUserModel();
         $userInstance = new $userModel();
 
         return [

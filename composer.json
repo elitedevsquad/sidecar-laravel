@@ -1,5 +1,5 @@
 {
-    "name": "elitedevsquad/sidecar-extension-bridge",
+    "name": "elitedevsquad/sidecar-extension",
     "type": "library",
     "license": "proprietary",
     "minimum-stability": "stable",

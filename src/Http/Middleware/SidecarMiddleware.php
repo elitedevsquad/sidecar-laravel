@@ -13,7 +13,7 @@ class SidecarMiddleware
     {
         $sidecarToken = Cookie::get('sidecar_token');
 
-        $expectedToken = config('devsquad-sidecar-bridge.auth_token');
+        $expectedToken = config('devsquad-sidecar.auth_token');
 
         if (is_null($sidecarToken) || is_null($expectedToken)) {
             abort(403, 'Unauthorized.');

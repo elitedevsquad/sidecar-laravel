@@ -12,13 +12,13 @@ class SidecarServiceProvider extends BaseServiceProvider
     public function boot(Router $router): void
     {
         $this->publishes([
-            __DIR__ . '/../../resources/config/devsquad-sidecar-bridge.php' => config_path('devsquad-sidecar-bridge.php'),
-        ], 'devsquad-sidecar-bridge');
+            __DIR__.'/../../resources/config/devsquad-sidecar.php' => config_path('devsquad-sidecar.php'),
+        ], 'devsquad-sidecar');
 
-        $this->loadRoutesFrom(__DIR__ . '/../../resources/routes.php');
+        $this->loadRoutesFrom(__DIR__.'/../../resources/routes.php');
 
         $this->app->singleton(
-            'devsquad-sidecar-bridge',
+            'devsquad-sidecar',
             function () {
                 return new SidecarBridge();
             }
@@ -30,8 +30,8 @@ class SidecarServiceProvider extends BaseServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../../resources/config/devsquad-sidecar-bridge.php',
-            'devsquad-sidecar-bridge'
+            __DIR__.'/../../resources/config/devsquad-sidecar.php',
+            'devsquad-sidecar'
         );
     }
 }

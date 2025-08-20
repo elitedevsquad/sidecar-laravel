@@ -20,18 +20,18 @@ Follow these steps in your project's terminal and code editor.
 **1. Install the Composer Package**
 
 ```bash
-composer require elitedevsquad/sidecar-extension-bridge
+composer require elitedevsquad/sidecar-extension
 ```
 
 **2. Publish Config Files**
 
 ```bash
-php artisan vendor:publish --tag="devsquad-sidecar-bridge"
+php artisan vendor:publish --tag="devsquad-sidecar"
 ```
 
 **3. Customize the Configuration (Optional)**
 
-This creates a `config/devsquad-sidecar-bridge.php` file. You can edit this file to customize which features are available. While many settings use your `.env` file by default, you can change them here.
+This creates a `config/devsquad-sidecar.php` file. You can edit this file to customize which features are available. While many settings use your `.env` file by default, you can change them here.
 
 Here is a summary of the options you can change:
 
@@ -95,7 +95,7 @@ public function boot(): void
 Add the following code to your main JavaScript file (`resources/js/app.js`) to initialize the Sidecar script. This allows the tool to load on your site.
 
 ```javascript
-import { Sidecar } from "../../vendor/devsquad-extension-bridge/resources/js/index.js";
+import { Sidecar } from "../../vendor/devsquad-sidecar/resources/js/index.js";
 
 document.addEventListener("DOMContentLoaded", () => new Sidecar());
 ```

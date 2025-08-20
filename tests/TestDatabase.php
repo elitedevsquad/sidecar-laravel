@@ -39,12 +39,12 @@ class TestDatabase
         Schema::enableForeignKeyConstraints();
 
         DB::table('users')->insert([
-            'name'  => 'Luan',
+            'name' => 'Luan',
             'email' => 'luanfreitas10@protonmail.com',
         ]);
 
         DB::table('users')->insert([
-            'name'  => 'John Doe',
+            'name' => 'John Doe',
             'email' => 'jonh_doe@gmail.com',
         ]);
     }

@@ -13,8 +13,8 @@ readonly class SetSidecarTokenController
             'token' => 'required|string|max:80|regex:/^[a-zA-Z0-9\-_]+$/',
         ]);
 
-        $token         = $request->input('token');
-        $expectedToken = config('devsquad-sidecar-bridge.auth_token');
+        $token = $request->input('token');
+        $expectedToken = config('devsquad-sidecar.auth_token');
 
         abort_if(is_null($token) || is_null($expectedToken), 403, 'Unauthorized.');
         abort_if($token !== $expectedToken, 403, 'Unauthorized.');
