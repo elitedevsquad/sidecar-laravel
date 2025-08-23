@@ -19,7 +19,7 @@ export class Sidecar {
 
             if (!response.ok) {
                 localStorage.setItem('sidecar_authenticated', 'false');
-                window.dispatchEvent(new CustomEvent("dx:to:extension:data", { detail: { statusCode: response.status } }));
+                window.dispatchEvent(new CustomEvent("sidecar:to:extension:data", { detail: { statusCode: response.status } }));
                 return;
             }
 
@@ -31,14 +31,14 @@ export class Sidecar {
                 "color:#aaa;font-size:0.9em;",
             );
 
-            window.dispatchEvent(new CustomEvent("dx:to:extension:data", { detail: data }));
+            window.dispatchEvent(new CustomEvent("sidecar:to:extension:data", { detail: data }));
         } catch (error) {
             console.error("DevPanel Bridge: Error fetching initial data:", error);
         }
     }
 
     setupEventListeners() {
-        window.addEventListener("dx:to:page:token", async ({ detail }) => {
+        window.addEventListener("sidecar:to:page:token", async ({ detail }) => {
             const response = await fetch('__devsquad-sidecar/token', {
                 method: "POST",
                 headers: {
@@ -60,16 +60,20 @@ export class Sidecar {
             }
         });
 
-        window.addEventListener("dx:to:page:selectUser", ({ detail }) => {
+        window.addEventListener("sidecar:to:page:selectUser", ({ detail }) => {
             this.handleUserLogin(detail.id);
         });
 
-        window.addEventListener("dx:to:page:executeCommand", ({ detail }) => {
-            this.handleCommand(detail.command, "dx:to:extension:commandOutput");
+        window.addEventListener("sidecar:to:page:executeCommand", ({ detail }) => {
+            this.handleCommand(detail.command, "sidecar:to:extension:commandOutput");
         });
 
-        window.addEventListener("dx:to:page:executeTinker", ({ detail }) => {
-            this.handleCommand(detail.code, "dx:to:extension:tinkerOutput");
+        window.addEventListener("sidecar:to:page:executeTinker", ({ detail }) => {
+            this.handleCommand(detail.code, "sidecar:to:extension:tinkerOutput");
+        });
+
+        window.addEventListener("sidecar:to:page:executeFakeClock", ({ detail }) => {
+            this.handleCommand(detail.datetime ?? '', "sidecar:to:extension:fakeClockOutput");
         });
     }
 
@@ -82,9 +86,23 @@ export class Sidecar {
     }
 
     handleCommand(payload, eventName) {
-        const isTinker = eventName.includes("tinker");
-        const endpoint = isTinker ? "/__devsquad-sidecar/execute-tinker" : "/__devsquad-sidecar/execute-command";
-        const body = isTinker ? { code: payload } : { command: payload };
+        let endpoint;
+        let body;
+
+        if (eventName === "sidecar:to:extension:commandOutput") {
+            endpoint = "/__devsquad-sidecar/execute-command";
+            body = { command: payload };
+        }
+
+        else if (eventName === "sidecar:to:extension:tinkerOutput") {
+            endpoint = "/__devsquad-sidecar/execute-tinker";
+            body = { code: payload };
+        }
+
+        else if (eventName === "sidecar:to:extension:fakeClockOutput") {
+            endpoint = "/__devsquad-sidecar/execute-fake-clock";
+            body = { datetime: payload };
+        }
 
         this.post(endpoint, body).then((data) => {
             window.dispatchEvent(new CustomEvent(eventName, { detail: data.output }));
@@ -114,7 +132,7 @@ export class Sidecar {
             return await response.json();
         } catch (error) {
             console.error(`DevPanel Bridge: Error posting to ${endpoint}:`, error);
-            window.dispatchEvent(new CustomEvent("dx:to:extension:error", { detail: error.message }));
+            window.dispatchEvent(new CustomEvent("sidecar:to:extension:error", { detail: error.message }));
         }
     }
 }

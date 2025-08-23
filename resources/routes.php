@@ -1,6 +1,11 @@
 <?php
 
-use EliteDevSquad\SidecarExtensionBridge\Http\Controllers\{ExecuteCommandController, ExecuteTinkerController, GetSidecarDataController, LoginAsUserController, SetSidecarTokenController};
+use EliteDevSquad\SidecarExtensionBridge\Http\Controllers\{ExecuteCommandController,
+    ExecuteFakeClockController,
+    ExecuteTinkerController,
+    GetSidecarDataController,
+    LoginAsUserController,
+    SetSidecarTokenController};
 use Illuminate\Support\Facades\Route;
 
 if (! app()->isProduction()) {
@@ -13,6 +18,7 @@ if (! app()->isProduction()) {
             Route::post('/login-as', LoginAsUserController::class);
             Route::post('/execute-command', ExecuteCommandController::class);
             Route::post('/execute-tinker', ExecuteTinkerController::class);
+            Route::post('/execute-fake-clock', ExecuteFakeClockController::class);
         });
     });
 }
