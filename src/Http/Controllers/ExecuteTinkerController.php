@@ -4,6 +4,7 @@ namespace EliteDevSquad\SidecarExtensionBridge\Http\Controllers;
 
 use EliteDevSquad\SidecarExtensionBridge\Http\Requests\ExecuteTinkerRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Throwable;
 
@@ -12,6 +13,10 @@ readonly class ExecuteTinkerController
     public function __invoke(ExecuteTinkerRequest $request): JsonResponse
     {
         $validated = $request->validated();
+
+        if (isset($validated['clock'])) {
+            Carbon::setTestNow(Carbon::parse($validated['clock']));
+        }
 
         try {
             Artisan::call('tinker', ['--execute' => $validated['code']]);

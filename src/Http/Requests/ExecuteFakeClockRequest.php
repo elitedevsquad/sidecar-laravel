@@ -4,7 +4,7 @@ namespace EliteDevSquad\SidecarExtensionBridge\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ExecuteCommandRequest extends FormRequest
+class ExecuteFakeClockRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,8 +14,7 @@ class ExecuteCommandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'command' => ['required', 'string'],
-            'clock' => ['nullable', 'date', 'string', 'date_format:Y-m-d H:i:s'],
+            'datetime' => ['required', 'string', 'date'],
         ];
     }
 }

@@ -25,6 +25,8 @@ class GetSidecarDataController
             'links' => config('devsquad-sidecar.links'),
             'commands' => config('devsquad-sidecar.commands'),
             'branch_url' => config('devsquad-sidecar.branch_url'),
+            'fake_clock' => session('sidecar_fake_clock'),
+            'datetime' => now(),
         ]);
     }
 
