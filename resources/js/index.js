@@ -65,7 +65,7 @@ export class Sidecar {
         });
 
         window.addEventListener("sidecar:to:page:executeCommand", ({ detail }) => {
-            this.handleCommand(detail.command, "sidecar:to:extension:commandOutput");
+            this.handleCommand(detail, "sidecar:to:extension:commandOutput");
         });
 
         window.addEventListener("sidecar:to:page:executeTinker", ({ detail }) => {
