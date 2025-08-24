@@ -11,7 +11,7 @@ beforeEach(function () {
 });
 
 it('executes a valid artisan command', function () {
-    postJson('__devsquad-sidecar/execute-command', ['command' => 'view:clear'])
+    postJson('__devsquad-sidecar/execute-command', ['command' => ['command' => 'view:clear', 'name' => 'Clear Compiled Views']])
         ->assertOk()
         ->assertContent('{"output":"\n   INFO  Compiled views cleared successfully.  \n\n"}');
 });
