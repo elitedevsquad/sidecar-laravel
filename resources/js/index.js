@@ -9,54 +9,72 @@ export class Sidecar {
         this.setupEventListeners();
     }
 
-    async fetchInitialData() {
+    async request(endpoint, options = {}) {
         try {
-            const response = await fetch("/__devsquad-sidecar/data", {
+            const response = await fetch(endpoint, {
                 headers: {
-                    Accept: "application/json"
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": this.csrfToken,
+                    ...(options.headers || {}),
                 },
+                ...options,
             });
 
             if (!response.ok) {
-                localStorage.setItem('sidecar_authenticated', 'false');
-                window.dispatchEvent(new CustomEvent("sidecar:to:extension:data", { detail: { statusCode: response.status } }));
-                return;
+                localStorage.setItem("sidecar_authenticated", "false");
+
+                let errorDetail = {
+                    statusCode: response.status,
+                    message: response.statusText
+                };
+
+                try {
+                    const errorJson = await response.json();
+                    errorDetail = { ...errorDetail, ...errorJson };
+                } catch (_) {
+                }
+
+                return { error: errorDetail };
             }
 
-            const data = await response.json();
-
-            console.log(
-                "\n%cDevSquad Sidecar Enabled\n%cProject: " + data.project_name + "",
-                "color:#28ef00;font-size:1em;",
-                "color:#aaa;font-size:0.9em;",
-            );
-
-            window.dispatchEvent(new CustomEvent("sidecar:to:extension:data", { detail: data }));
+            return await response.json();
         } catch (error) {
-            console.error("DevPanel Bridge: Error fetching initial data:", error);
+            return { error: error.message };
         }
+    }
+
+    async fetchInitialData() {
+        const data = await this.request("/__devsquad-sidecar/data");
+
+        if (data.error) {
+            if (data.error.statusCode === 403) {
+                this.dispatch("sidecar:auth:failed", data.error);
+            }
+            return;
+        }
+
+        console.log(
+            `\n%cDevSquad Sidecar Enabled\n%cProject: ${data.project_name}`,
+            "color:#28ef00;font-size:1em;",
+            "color:#aaa;font-size:0.9em;"
+        );
+
+        this.dispatch("sidecar:to:extension:data", data);
     }
 
     setupEventListeners() {
         window.addEventListener("sidecar:to:page:token", async ({ detail }) => {
-            const response = await fetch('__devsquad-sidecar/token', {
+            const result = await this.request("/__devsquad-sidecar/token", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                    "X-CSRF-TOKEN": this.csrfToken,
-                },
                 body: JSON.stringify({ token: detail.token }),
             });
 
-            if (!response.ok) {
-                localStorage.setItem('sidecar_authenticated', 'false');
-                alert('❌ API token is invalid or not set.');
-            }
-
-            if (response.ok) {
-                localStorage.setItem('sidecar_authenticated', 'true');
-                alert('🎉 API token set successfully!');
+            if (result.error) {
+                alert("❌ API token is invalid or not set.");
+            } else {
+                localStorage.setItem("sidecar_authenticated", "true");
+                alert("🎉 API token set successfully!");
             }
         });
 
@@ -64,71 +82,43 @@ export class Sidecar {
             this.handleUserLogin(detail.id);
         });
 
-        window.addEventListener("sidecar:to:page:executeCommand", ({ detail }) => {
-            this.handleCommand(detail, "sidecar:to:extension:commandOutput");
-        });
+        const commandEndpoints = {
+            "sidecar:to:page:executeCommand": ["/__devsquad-sidecar/execute-command", "sidecar:to:extension:commandOutput"],
+            "sidecar:to:page:executeTinker": ["/__devsquad-sidecar/execute-tinker", "sidecar:to:extension:tinkerOutput"],
+            "sidecar:to:page:executeFakeClock": ["/__devsquad-sidecar/execute-fake-clock", "sidecar:to:extension:fakeClockOutput"],
+        };
 
-        window.addEventListener("sidecar:to:page:executeTinker", ({ detail }) => {
-            this.handleCommand(detail, "sidecar:to:extension:tinkerOutput");
-        });
-
-        window.addEventListener("sidecar:to:page:executeFakeClock", ({ detail }) => {
-            this.handleCommand(detail.datetime ?? '', "sidecar:to:extension:fakeClockOutput");
-        });
+        for (const event in commandEndpoints) {
+            const [endpoint, outputEvent] = commandEndpoints[event];
+            window.addEventListener(event, ({ detail }) => this.handleCommand(endpoint, detail, outputEvent));
+        }
     }
 
-    handleUserLogin(userId) {
-        this.post("/__devsquad-sidecar/login-as", { user_id: userId }).then((data) => {
-            if (data.redirect) {
-                window.location.href = data.redirect;
-            }
+    async handleUserLogin(userId) {
+        const data = await this.request("/__devsquad-sidecar/login-as", {
+            method: "POST",
+            body: JSON.stringify({ user_id: userId }),
         });
+
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
     }
 
-    handleCommand(payload, eventName) {
-        let endpoint;
-
-        if (eventName === "sidecar:to:extension:commandOutput") {
-            endpoint = "/__devsquad-sidecar/execute-command";
-        }
-
-        else if (eventName === "sidecar:to:extension:tinkerOutput") {
-            endpoint = "/__devsquad-sidecar/execute-tinker";
-        }
-
-        else if (eventName === "sidecar:to:extension:fakeClockOutput") {
-            endpoint = "/__devsquad-sidecar/execute-fake-clock";
-        }
-
-        this.post(endpoint, payload).then((data) => {
-            window.dispatchEvent(new CustomEvent(eventName, { detail: data.output }));
+    async handleCommand(endpoint, payload, outputEvent) {
+        const data = await this.request(endpoint, {
+            method: "POST",
+            body: JSON.stringify(payload),
         });
+
+        if(data.error) {
+            console.warn('Sidecar: ', data)
+        }
+
+        this.dispatch(outputEvent, data.output ?? data.error.message);
     }
 
-    async post(endpoint, body) {
-        try {
-            const response = await fetch(endpoint, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                    "X-CSRF-TOKEN": this.csrfToken
-                },
-                body: JSON.stringify(body),
-            });
-
-            if (!response.ok) {
-                localStorage.setItem('sidecar_authenticated', 'false');
-
-                return {
-                    error: `Failed to post to ${endpoint}: ${response.statusText}`,
-                };
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error(`DevPanel Bridge: Error posting to ${endpoint}:`, error);
-            window.dispatchEvent(new CustomEvent("sidecar:to:extension:error", { detail: error.message }));
-        }
+    dispatch(event, detail) {
+        window.dispatchEvent(new CustomEvent(event, { detail }));
     }
 }

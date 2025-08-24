@@ -14,8 +14,8 @@ class ExecuteCommandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'command' => ['required', 'string'],
-            'clock' => ['nullable', 'date', 'string', 'date_format:Y-m-d H:i:s'],
+            'command' => ['array', 'required_array_keys:name,command', 'required'],
+            'clock' => ['nullable', 'date', 'date_format:Y-m-d H:i:s'],
         ];
     }
 }

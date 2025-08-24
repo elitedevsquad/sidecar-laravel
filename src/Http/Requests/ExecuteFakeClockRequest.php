@@ -14,7 +14,7 @@ class ExecuteFakeClockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'datetime' => ['required', 'string', 'date'],
+            'datetime' => ['nullable', 'string', 'date'],
         ];
     }
 }

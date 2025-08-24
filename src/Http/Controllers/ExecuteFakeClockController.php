@@ -9,14 +9,24 @@ class ExecuteFakeClockController
 {
     public function __invoke(ExecuteFakeClockRequest $request)
     {
-        Carbon::setTestNow(
-            $datetime = Carbon::parse($request->input('datetime') ?? now())->setTimeFromTimeString(now()->toTimeString())
-        );
+        $datetimeInput = $request->input('datetime');
 
-        session(['sidecar_fake_clock' => $datetime->toDateTimeString()]);
+        if ($datetimeInput) {
+            $datetime = Carbon::parse($datetimeInput)->setTimeFromTimeString(now()->toTimeString());
+
+            Carbon::setTestNow($datetime);
+            session(['sidecar_fake_clock' => $datetime->toDateTimeString()]);
+
+            return response()->json([
+                'output' => 'Fake clock set to '.$datetime->toDateTimeString(),
+            ]);
+        }
+
+        Carbon::setTestNow();
+        session()->forget('sidecar_fake_clock');
 
         return response()->json([
-            'output' => 'Fake clock set to '.$datetime->toDateTimeString(),
+            'output' => 'Fake clock reset to real time',
         ]);
     }
 }

@@ -19,7 +19,7 @@ readonly class ExecuteCommandController
         }
 
         try {
-            Artisan::call($validated['command']);
+            Artisan::call($validated['command']['command']);
             $output = Artisan::output();
         } catch (Throwable $e) {
             $output = 'Error executing command: '.$e->getMessage();
