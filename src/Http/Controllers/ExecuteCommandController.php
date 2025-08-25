@@ -14,7 +14,7 @@ readonly class ExecuteCommandController
     {
         $validated = $request->validated();
 
-        if (isset($validated['clock'])) {
+        if (isset($validated['clock']) && config('devsquad-sidecar.fake_clock_enabled')) {
             Carbon::setTestNow(Carbon::parse($validated['clock']));
         }
 
