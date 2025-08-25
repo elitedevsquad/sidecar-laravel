@@ -5,13 +5,13 @@
     "minimum-stability": "stable",
     "require": {
         "php": "^8.2",
-        "laravel/framework": "^11.0 | ^12.0"
+        "laravel/framework": "^12.0|^11.0"
     },
     "require-dev": {
         "laravel/pint": "^1.24",
-        "pestphp/pest": "^4.0",
-        "pestphp/pest-plugin-laravel": "^4.0",
-        "orchestra/testbench": "^9.4 | ^10.4",
+        "pestphp/pest": "^4.0|^3.8",
+        "pestphp/pest-plugin-laravel": "^4.0|^3.2",
+        "orchestra/testbench": "^10.4|^9.4",
         "laradumps/laradumps": "^4.3"
     },
     "scripts": {
