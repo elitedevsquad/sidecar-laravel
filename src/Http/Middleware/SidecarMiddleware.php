@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Middleware;
+namespace EliteDevSquad\Sidecar\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Cookie;
 /** @codeCoverageIgnore */
 class SidecarMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         $this->validateToken();
         $this->validateEnabled();

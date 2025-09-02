@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Controllers;
+namespace EliteDevSquad\Sidecar\Http\Controllers;
 
 use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\Cookie;

@@ -1,8 +1,8 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Controllers;
+namespace EliteDevSquad\Sidecar\Http\Controllers;
 
-use EliteDevSquad\SidecarExtensionBridge\Http\Requests\LoginAsRequest;
+use EliteDevSquad\Sidecar\Http\Requests\LoginAsRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 

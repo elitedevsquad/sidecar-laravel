@@ -1,8 +1,9 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Requests;
+namespace EliteDevSquad\Sidecar\Http\Requests;
 
-use EliteDevSquad\SidecarExtensionBridge\SidecarBridge;
+use EliteDevSquad\Sidecar\Sidecar;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -13,9 +14,14 @@ class LoginAsRequest extends FormRequest
         return true;
     }
 
-    public function rules(SidecarBridge $bridge): array
+    /**
+     * @return array<string, list<string|string>>
+     */
+    public function rules(Sidecar $bridge): array
     {
         $userModel = $bridge->getUserModel();
+
+        /** @var Model $userInstance */
         $userInstance = new $userModel();
 
         return [

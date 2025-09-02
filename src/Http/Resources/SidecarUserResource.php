@@ -1,8 +1,8 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Resources;
+namespace EliteDevSquad\Sidecar\Http\Resources;
 
-use EliteDevSquad\SidecarExtensionBridge\SidecarBridge;
+use EliteDevSquad\Sidecar\Sidecar;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -10,10 +10,13 @@ class SidecarUserResource extends JsonResource
 {
     public static $wrap = null;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
-        /** @var SidecarBridge $bridge */
-        $bridge = app(SidecarBridge::class);
+        /** @var Sidecar $bridge */
+        $bridge = app(Sidecar::class);
         $userMap = $bridge->getUserMap();
 
         return [

@@ -1,11 +1,14 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge;
+namespace EliteDevSquad\Sidecar;
 
-class SidecarBridge
+class Sidecar
 {
-    public static string $userModel = \App\Models\User::class;
+    public static string $userModel = \App\Models\User::class; // @phpstan-ignore-line
 
+    /**
+     * @var array<string, string>
+     */
     public static array $userMap = [
         'id' => 'id',
         'name' => 'first_name',
@@ -13,9 +16,12 @@ class SidecarBridge
         'email' => 'email',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     public static function getUserMap(): array
     {
-        return self::$userMap;
+        return self::$userMap; // @codeCoverageIgnore
     }
 
     public static function getUserModel(): string

@@ -1,11 +1,16 @@
 name: Tests
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - "**"
+    paths-ignore:
+        - "README.md"
 
-  workflow_dispatch:
+  pull_request:
+    types: [ ready_for_review, synchronize, opened ]
+    paths-ignore:
+      - "README.md"
 
 jobs:
   build:
@@ -53,7 +58,13 @@ jobs:
 
       - name: Pint - Code Style Fixer
         if: matrix.php-version == '8.3'
-        run: composer pint
+        run: composer test:lint
+
+      - name: Prevent debug call
+        run: composer test:debug
+
+      - name: Type Checks
+        run: composer test:types
 
       - name: Pest - Run Tests
-        run: composer test:coverage
+        run: composer test:unit

@@ -12,17 +12,25 @@
         "pestphp/pest": "^4.0|^3.8",
         "pestphp/pest-plugin-laravel": "^4.0|^3.2",
         "orchestra/testbench": "^10.4|^9.4",
-        "laradumps/laradumps": "^4.3"
+        "laradumps/laradumps": "^4.3",
+        "larastan/larastan": "^3.0"
     },
     "scripts": {
-        "fix": "./vendor/bin/pint",
-        "pint": "./vendor/bin/pint --test",
-        "test": "./vendor/bin/pest",
-        "test:coverage": "./vendor/bin/pest --coverage --min=90"
+        "fix": "pint",
+        "test:lint": "pint --test",
+        "test:types": "phpstan analyse --ansi src/",
+        "test:unit": "pest --colors=always --coverage --min=95 --compact",
+        "test:debug": "laradumps check --dir=src,tests --text=dump,dd",
+        "test": [
+            "@test:debug",
+            "@test:lint",
+            "@test:types",
+            "@test:unit"
+        ]
     },
     "autoload": {
         "psr-4": {
-            "EliteDevSquad\\SidecarExtensionBridge\\": "src/"
+            "EliteDevSquad\\Sidecar\\": "src/"
         }
     },
     "autoload-dev": {
@@ -33,7 +41,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "EliteDevSquad\\SidecarExtensionBridge\\Providers\\SidecarServiceProvider"
+                "EliteDevSquad\\Sidecar\\Providers\\SidecarServiceProvider"
             ]
         }
     },

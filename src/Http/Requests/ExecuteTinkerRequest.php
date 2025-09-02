@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Requests;
+namespace EliteDevSquad\Sidecar\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -11,6 +11,9 @@ class ExecuteTinkerRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, list<string|string>>
+     */
     public function rules(): array
     {
         return [
@@ -21,8 +24,11 @@ class ExecuteTinkerRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        /** @var string $code */
+        $code = $this->input('code');
+
         $this->merge([
-            'code' => base64_decode($this->input('code')),
+            'code' => base64_decode($code),
         ]);
     }
 }

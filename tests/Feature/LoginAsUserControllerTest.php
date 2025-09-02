@@ -2,14 +2,14 @@
 
 namespace Tests\Feature;
 
-use EliteDevSquad\SidecarExtensionBridge\Http\Middleware\SidecarMiddleware;
-use EliteDevSquad\SidecarExtensionBridge\SidecarBridge;
+use EliteDevSquad\Sidecar\Http\Middleware\SidecarMiddleware;
+use EliteDevSquad\Sidecar\Sidecar;
 use Tests\User;
 
 use function Pest\Laravel\{postJson, withoutMiddleware};
 
 it('logs in as given user id', function () {
-    SidecarBridge::$userModel = User::class;
+    Sidecar::$userModel = User::class;
 
     $user = User::create([
         'name' => 'Test User',

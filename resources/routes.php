@@ -1,6 +1,6 @@
 <?php
 
-use EliteDevSquad\SidecarExtensionBridge\Http\Controllers\{ExecuteCommandController,
+use EliteDevSquad\Sidecar\Http\Controllers\{ExecuteCommandController,
     ExecuteFakeClockController,
     ExecuteTinkerController,
     GetSidecarDataController,

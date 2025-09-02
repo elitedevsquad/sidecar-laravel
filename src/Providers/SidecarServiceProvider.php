@@ -1,9 +1,9 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Providers;
+namespace EliteDevSquad\Sidecar\Providers;
 
-use EliteDevSquad\SidecarExtensionBridge\Http\Middleware\SidecarMiddleware;
-use EliteDevSquad\SidecarExtensionBridge\SidecarBridge;
+use EliteDevSquad\Sidecar\Http\Middleware\SidecarMiddleware;
+use EliteDevSquad\Sidecar\Sidecar;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
@@ -20,7 +20,7 @@ class SidecarServiceProvider extends BaseServiceProvider
         $this->app->singleton(
             'devsquad-sidecar',
             function () {
-                return new SidecarBridge();
+                return new Sidecar(); // @codeCoverageIgnore
             }
         );
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Requests;
+namespace EliteDevSquad\Sidecar\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -11,6 +11,9 @@ class ExecuteFakeClockRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, list<string|string>>
+     */
     public function rules(): array
     {
         return [
