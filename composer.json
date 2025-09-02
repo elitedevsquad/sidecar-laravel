@@ -19,7 +19,7 @@
         "fix": "pint",
         "test:lint": "pint --test",
         "test:types": "phpstan analyse --ansi src/",
-        "test:unit": "pest --colors=always --coverage --min=90 --compact",
+        "test:unit": "pest --colors=always --coverage --min=95 --compact",
         "test:debug": "laradumps check --dir=src,tests --text=dump,dd",
         "test": [
             "@test:debug",
