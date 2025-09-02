@@ -1,8 +1,8 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Controllers;
+namespace EliteDevSquad\Sidecar\Http\Controllers;
 
-use EliteDevSquad\SidecarExtensionBridge\Http\Requests\ExecuteFakeClockRequest;
+use EliteDevSquad\Sidecar\Http\Requests\ExecuteFakeClockRequest;
 use Illuminate\Support\Carbon;
 
 class ExecuteFakeClockController

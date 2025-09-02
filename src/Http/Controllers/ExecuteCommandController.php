@@ -1,8 +1,8 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Controllers;
+namespace EliteDevSquad\Sidecar\Http\Controllers;
 
-use EliteDevSquad\SidecarExtensionBridge\Http\Requests\ExecuteCommandRequest;
+use EliteDevSquad\Sidecar\Http\Requests\ExecuteCommandRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;

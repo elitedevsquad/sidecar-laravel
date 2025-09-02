@@ -1,16 +1,16 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Controllers;
+namespace EliteDevSquad\Sidecar\Http\Controllers;
 
-use EliteDevSquad\SidecarExtensionBridge\Http\Resources\SidecarUserResource;
-use EliteDevSquad\SidecarExtensionBridge\SidecarBridge;
+use EliteDevSquad\Sidecar\Http\Resources\SidecarUserResource;
+use EliteDevSquad\Sidecar\Sidecar;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class GetSidecarDataController
 {
-    public function __construct(private readonly SidecarBridge $bridge) {}
+    public function __construct(private readonly Sidecar $bridge) {}
 
     public function __invoke(): JsonResponse
     {

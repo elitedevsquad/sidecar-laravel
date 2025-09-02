@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Requests;
+namespace EliteDevSquad\Sidecar\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

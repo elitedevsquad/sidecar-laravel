@@ -1,7 +1,7 @@
 <?php
 
-use EliteDevSquad\SidecarExtensionBridge\Http\Middleware\SidecarMiddleware;
-use EliteDevSquad\SidecarExtensionBridge\SidecarBridge;
+use EliteDevSquad\Sidecar\Http\Middleware\SidecarMiddleware;
+use EliteDevSquad\Sidecar\Sidecar;
 use Illuminate\Support\Facades\Config;
 use Tests\User;
 
@@ -9,7 +9,7 @@ use function Pest\Laravel\{actingAs, getJson, withoutMiddleware};
 
 beforeEach(function () {
     $this->user = User::first();
-    $this->bridge = Mockery::mock(SidecarBridge::class);
+    $this->bridge = Mockery::mock(Sidecar::class);
 
     $this->bridge->shouldReceive('getUserModel')->andReturn(User::class);
     $this->bridge->shouldReceive('getUserMap')->andReturn([
@@ -19,7 +19,7 @@ beforeEach(function () {
         'role' => 'role',
     ]);
 
-    app()->instance(SidecarBridge::class, $this->bridge);
+    app()->instance(Sidecar::class, $this->bridge);
 
     actingAs($this->user);
 });

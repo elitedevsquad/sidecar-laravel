@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge\Http\Middleware;
+namespace EliteDevSquad\Sidecar\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

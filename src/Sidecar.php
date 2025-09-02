@@ -1,8 +1,8 @@
 <?php
 
-namespace EliteDevSquad\SidecarExtensionBridge;
+namespace EliteDevSquad\Sidecar;
 
-class SidecarBridge
+class Sidecar
 {
     public static string $userModel = \App\Models\User::class;
 

@@ -68,7 +68,7 @@ First, make sure to import the necessary classes at the top of the file:
 
 ```php
 use Illuminate\Support\Facades\Gate;
-use EliteDevsquad\SidecarExtensionBridge\SidecarBridge;
+use EliteDevsquad\Sidecar\Sidecar;
 ```
 
 Then, add this logic inside the `boot()` method:
