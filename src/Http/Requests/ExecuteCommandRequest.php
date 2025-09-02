@@ -11,6 +11,9 @@ class ExecuteCommandRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, list<string|string>>
+     */
     public function rules(): array
     {
         return [

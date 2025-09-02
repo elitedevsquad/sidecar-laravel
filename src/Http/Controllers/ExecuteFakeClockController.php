@@ -2,13 +2,19 @@
 
 namespace EliteDevSquad\Sidecar\Http\Controllers;
 
+use Carbon\{Month, WeekDay};
+use DateTimeInterface;
 use EliteDevSquad\Sidecar\Http\Requests\ExecuteFakeClockRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 
 class ExecuteFakeClockController
 {
-    public function __invoke(ExecuteFakeClockRequest $request)
+    public function __invoke(ExecuteFakeClockRequest $request): JsonResponse
     {
+        /**
+         * @var Month|WeekDay|DateTimeInterface|float|int|string|null $datetimeInput
+         */
         $datetimeInput = $request->input('datetime');
 
         if ($datetimeInput) {

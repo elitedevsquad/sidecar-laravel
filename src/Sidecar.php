@@ -4,8 +4,11 @@ namespace EliteDevSquad\Sidecar;
 
 class Sidecar
 {
-    public static string $userModel = \App\Models\User::class;
+    public static string $userModel = \App\Models\User::class; // @phpstan-ignore-line
 
+    /**
+     * @var array<string, string>
+     */
     public static array $userMap = [
         'id' => 'id',
         'name' => 'first_name',
@@ -13,6 +16,9 @@ class Sidecar
         'email' => 'email',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     public static function getUserMap(): array
     {
         return self::$userMap;
