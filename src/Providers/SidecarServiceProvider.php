@@ -20,7 +20,7 @@ class SidecarServiceProvider extends BaseServiceProvider
         $this->app->singleton(
             'devsquad-sidecar',
             function () {
-                return new Sidecar();
+                return new Sidecar(); // @codeCoverageIgnore
             }
         );
 

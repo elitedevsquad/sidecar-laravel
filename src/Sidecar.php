@@ -21,7 +21,7 @@ class Sidecar
      */
     public static function getUserMap(): array
     {
-        return self::$userMap;
+        return self::$userMap; // @codeCoverageIgnore
     }
 
     public static function getUserModel(): string

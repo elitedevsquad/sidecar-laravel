@@ -1,0 +1,62 @@
+<?php
+
+use EliteDevSquad\Sidecar\Http\Middleware\SidecarMiddleware;
+
+use function Pest\Laravel\{postJson, withoutMiddleware};
+
+beforeEach(function () {
+    withoutMiddleware(SidecarMiddleware::class);
+});
+
+it('executes a valid artisan command', function () {
+    postJson('__devsquad-sidecar/execute-command', [
+        'command' => [
+            'command' => 'view:clear',
+            'name' => 'Clear Compiled Views',
+        ]])
+        ->assertOk()
+        ->assertContent('{"output":"\n   INFO  Compiled views cleared successfully.  \n\n"}');
+});
+
+it('change clock when clock input is provided', function () {
+    $newTime = now()->addDays(2)->toDateTimeString();
+
+    postJson('__devsquad-sidecar/execute-command', [
+        'command' => [
+            'command' => 'view:clear',
+            'name' => 'Clear Compiled Views',
+        ],
+        'clock' => $newTime,
+    ])
+        ->assertOk()
+        ->assertContent('{"output":"\n   INFO  Compiled views cleared successfully.  \n\n"}');
+
+    expect(now()->toDateTimeString())->toBe($newTime);
+});
+
+it('does not change clock when clock input is not provided', function () {
+    $originalTime = now()->toDateTimeString();
+
+    postJson('__devsquad-sidecar/execute-command', [
+        'command' => [
+            'command' => 'view:clear',
+            'name' => 'Clear Compiled Views',
+        ],
+    ])
+        ->assertOk()
+        ->assertContent('{"output":"\n   INFO  Compiled views cleared successfully.  \n\n"}');
+
+    expect(now()->toDateTimeString())->toBe($originalTime);
+});
+
+it('handles exception when executing artisan command', function () {
+    postJson('__devsquad-sidecar/execute-command', [
+        'command' => [
+            'command' => 'bad',
+            'name' => 'Bad Command',
+        ]])
+        ->assertOk()
+        ->assertJson([
+            'output' => 'Error executing command: The command "bad" does not exist.',
+        ]);
+});
