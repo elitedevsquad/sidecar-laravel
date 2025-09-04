@@ -15,20 +15,19 @@ readonly class ExecuteCommandController
     {
         /**
          * @var array{
-         *     command?: array{command: string},
+         *     command: string,
          *     clock?: string|int|float|DateTimeInterface|null
-         * } $validated
+         * } $data
          */
-        $validated = $request->validated();
+        $data = $request->validated();
 
-        if (isset($validated['clock']) && config('devsquad-sidecar.fake_clock_enabled')) {
-            $time = $validated['clock'];
-            Carbon::setTestNow(Carbon::parse($time));
+        if (isset($data['clock']) && config('devsquad-sidecar.fake_clock_enabled')) {
+            Carbon::setTestNow($request->date('clock'));
         }
 
         try {
             /** @var string $command */
-            $command = $validated['command']['command'] ?? '';
+            $command = $data['command'];
 
             Artisan::call($command);
             $output = Artisan::output();

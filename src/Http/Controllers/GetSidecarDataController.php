@@ -29,7 +29,7 @@ class GetSidecarDataController
         return response()->json([
             'enabled' => true,
             'project_name' => $projectName,
-            'currentUser' => Auth::id(),
+            'current_user' => Auth::id(),
             'branch' => $this->getBranch(),
             'database' => $database,
             'environment' => app()->environment(),

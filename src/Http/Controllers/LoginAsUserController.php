@@ -10,10 +10,11 @@ readonly class LoginAsUserController
 {
     public function __invoke(LoginAsRequest $request): JsonResponse
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 
         session()->put('fake_login', true);
-        Auth::loginUsingId($validated['user_id']);
+
+        Auth::loginUsingId($data['user_id']);
 
         return response()->json([
             'status' => 'success',

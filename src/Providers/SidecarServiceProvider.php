@@ -19,9 +19,7 @@ class SidecarServiceProvider extends BaseServiceProvider
 
         $this->app->singleton(
             'devsquad-sidecar',
-            function () {
-                return new Sidecar(); // @codeCoverageIgnore
-            }
+            fn () => new Sidecar() // @codeCoverageIgnore
         );
 
         $router->aliasMiddleware('devsquad-sidecar-auth', SidecarMiddleware::class);
