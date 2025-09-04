@@ -14,6 +14,7 @@ readonly class SetSidecarTokenController
         ]);
 
         $token = $request->input('token');
+
         $expectedToken = config('devsquad-sidecar.auth_token');
 
         abort_if(is_null($token) || is_null($expectedToken), 403, 'Unauthorized.');

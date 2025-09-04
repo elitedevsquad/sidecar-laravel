@@ -18,16 +18,16 @@ readonly class ExecuteTinkerController
          * @var array{
          *     code: string,
          *     clock?: Month|WeekDay|DateTimeInterface|float|int|string|null
-         * } $validated
+         * } $data
          */
-        $validated = $request->validated();
+        $data = $request->validated();
 
-        if (isset($validated['clock']) && config('devsquad-sidecar.fake_clock_enabled')) {
-            Carbon::setTestNow(Carbon::parse($validated['clock']));
+        if (isset($data['clock']) && config('devsquad-sidecar.fake_clock_enabled')) {
+            Carbon::setTestNow($request->date('clock'));
         }
 
         try {
-            Artisan::call('tinker', ['--execute' => $validated['code']]);
+            Artisan::call('tinker', ['--execute' => $data['code']]);
             $output = Artisan::output();
         } catch (Throwable $e) {
             $output = 'Error executing code: '.$e->getMessage();

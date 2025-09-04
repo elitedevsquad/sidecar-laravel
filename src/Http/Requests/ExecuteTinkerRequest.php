@@ -8,7 +8,7 @@ class ExecuteTinkerRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return ! app()->isProduction();
     }
 
     /**

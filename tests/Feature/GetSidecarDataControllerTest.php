@@ -41,7 +41,7 @@ it('returns full JSON payload', function () {
     $response->assertJson([
         'project_name' => 'My App',
         'enabled' => true,
-        'currentUser' => $this->user->id,
+        'current_user' => $this->user->id,
         'branch' => 'main',
         'database' => ':memory:',
         'environment' => 'testing',
