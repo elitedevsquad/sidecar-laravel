@@ -2,12 +2,12 @@
 
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
-use Illuminate\Http\{Request, Response};
+use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\Cookie;
 
 readonly class SetSidecarTokenController
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request): JsonResponse
     {
         $request->validate([
             'token' => 'required|string|max:80|regex:/^[a-zA-Z0-9\-_]+$/',
@@ -22,6 +22,6 @@ readonly class SetSidecarTokenController
 
         Cookie::queue('sidecar_token', $token, 60 * 24 * 7);
 
-        return response()->noContent();
+        return response()->json(['success' => true]);
     }
 }

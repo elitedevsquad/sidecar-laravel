@@ -8,7 +8,8 @@ it('stores token in cookie if valid', function () {
     Config::set('devsquad-sidecar.auth_token', 'my-token');
 
     post('__devsquad-sidecar/token', ['token' => 'my-token'])
-        ->assertNoContent()
+        ->assertOk()
+        ->assertExactJson(['success' => true])
         ->assertCookie('sidecar_token', 'my-token');
 });
 
