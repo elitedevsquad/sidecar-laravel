@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use EliteDevSquad\Sidecar\Http\Middleware\SidecarMiddleware;
+use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 
 use function Pest\Laravel\{postJson, withoutMiddleware};
 

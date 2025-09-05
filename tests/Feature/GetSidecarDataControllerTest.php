@@ -1,7 +1,7 @@
 <?php
 
-use EliteDevSquad\Sidecar\Http\Middleware\SidecarMiddleware;
-use EliteDevSquad\Sidecar\Sidecar;
+use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
+use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Support\Facades\Config;
 use Tests\User;
 

@@ -1,11 +1,12 @@
 <?php
 
-use EliteDevSquad\Sidecar\Http\Controllers\{ExecuteCommandController,
+use EliteDevSquad\SidecarLaravel\Http\Controllers\{
     ExecuteFakeClockController,
     ExecuteTinkerController,
     GetSidecarDataController,
     LoginAsUserController,
     SetSidecarTokenController};
+use EliteDevSquad\SidecarLaravel\Http\Controllers\ExecuteCommandController;
 use Illuminate\Support\Facades\Route;
 
 if (! app()->isProduction()) {

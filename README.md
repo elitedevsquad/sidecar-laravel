@@ -6,7 +6,7 @@ DevSquad Sidecar is a tool to help developers and QA test Laravel applications d
 
 Before you begin, ensure your project and environment meet the following requirements:
 
-* **PHP:** `^8.2` (8.2 or higher)
+* **PHP:** `^8.2`
 * **Laravel Framework:** `^11.0` or `^12.0`
 
 ## Setup
@@ -20,7 +20,7 @@ Follow these steps in your project's terminal and code editor.
 **1. Install the Composer Package**
 
 ```bash
-composer require elitedevsquad/sidecar-extension
+composer require elitedevsquad/sidecar-laravel
 ```
 
 **2. Publish Config Files**
@@ -68,7 +68,7 @@ First, make sure to import the necessary classes at the top of the file:
 
 ```php
 use Illuminate\Support\Facades\Gate;
-use EliteDevsquad\Sidecar\Sidecar;
+use EliteDevSquad\SidecarLaravel\Sidecar;
 ```
 
 Then, add this logic inside the `boot()` method:

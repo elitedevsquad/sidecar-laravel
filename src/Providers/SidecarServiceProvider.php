@@ -1,9 +1,9 @@
 <?php
 
-namespace EliteDevSquad\Sidecar\Providers;
+namespace EliteDevSquad\SidecarLaravel\Providers;
 
-use EliteDevSquad\Sidecar\Http\Middleware\SidecarMiddleware;
-use EliteDevSquad\Sidecar\Sidecar;
+use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
+use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 

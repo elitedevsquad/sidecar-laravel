@@ -1,8 +1,8 @@
 <?php
 
-namespace EliteDevSquad\Sidecar\Http\Requests;
+namespace EliteDevSquad\SidecarLaravel\Http\Requests;
 
-use EliteDevSquad\Sidecar\Sidecar;
+use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;

@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\Sidecar\Http\Controllers;
+namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\Cookie;

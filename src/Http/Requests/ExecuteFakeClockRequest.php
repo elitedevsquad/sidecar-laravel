@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\Sidecar\Http\Requests;
+namespace EliteDevSquad\SidecarLaravel\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
