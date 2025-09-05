@@ -17,11 +17,14 @@ readonly class SetSidecarTokenController
 
         $expectedToken = config('devsquad-sidecar.auth_token');
 
-        abort_if(is_null($token) || is_null($expectedToken), 403, 'Unauthorized.');
-        abort_if($token !== $expectedToken, 403, 'Unauthorized.');
+        if ($token !== $expectedToken) {
+            return response()->json(status: 403);
+        }
 
         Cookie::queue('sidecar_token', $token, 60 * 24 * 7);
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+        ]);
     }
 }
