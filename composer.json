@@ -1,7 +1,7 @@
 {
-    "name": "elitedevsquad/sidecar-extension",
+    "name": "elitedevsquad/sidecar-laravel",
     "type": "library",
-    "license": "proprietary",
+    "license": "AGPL-3.0",
     "minimum-stability": "stable",
     "require": {
         "php": "^8.2",
@@ -30,7 +30,7 @@
     },
     "autoload": {
         "psr-4": {
-            "EliteDevSquad\\Sidecar\\": "src/"
+            "EliteDevSquad\\SidecarLaravel\\": "src/"
         }
     },
     "autoload-dev": {
@@ -41,7 +41,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "EliteDevSquad\\Sidecar\\Providers\\SidecarServiceProvider"
+                "EliteDevSquad\\SidecarLaravel\\Providers\\SidecarServiceProvider"
             ]
         }
     },

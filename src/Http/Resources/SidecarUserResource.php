@@ -1,8 +1,8 @@
 <?php
 
-namespace EliteDevSquad\Sidecar\Http\Resources;
+namespace EliteDevSquad\SidecarLaravel\Http\Resources;
 
-use EliteDevSquad\Sidecar\Sidecar;
+use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

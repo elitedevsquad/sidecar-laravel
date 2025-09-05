@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\Sidecar;
+namespace EliteDevSquad\SidecarLaravel;
 
 class Sidecar
 {

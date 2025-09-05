@@ -1,6 +1,6 @@
 <?php
 
-use EliteDevSquad\Sidecar\Http\Middleware\SidecarMiddleware;
+use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 

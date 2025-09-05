@@ -1,9 +1,9 @@
 <?php
 
-namespace EliteDevSquad\Sidecar\Http\Controllers;
+namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
-use EliteDevSquad\Sidecar\Http\Resources\SidecarUserResource;
-use EliteDevSquad\Sidecar\Sidecar;
+use EliteDevSquad\SidecarLaravel\Http\Resources\SidecarUserResource;
+use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;

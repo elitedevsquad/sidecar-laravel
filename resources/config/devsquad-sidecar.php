@@ -3,6 +3,15 @@
 return [
     'enabled' => env('DS_SIDECAR_ENABLED', true),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Auth Token
+    |--------------------------------------------------------------------------
+    |
+    | This option sets the authentication token required for secure access
+    | to the sidecar endpoints. Set this to a unique, secret value.
+    |
+    */
     'auth_token' => env('DS_SIDECAR_AUTH_TOKEN', ''),
 
     /*

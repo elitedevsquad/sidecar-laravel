@@ -1,10 +1,10 @@
 <?php
 
-namespace EliteDevSquad\Sidecar\Http\Controllers;
+namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use Carbon\{Month, WeekDay};
 use DateTimeInterface;
-use EliteDevSquad\Sidecar\Http\Requests\ExecuteTinkerRequest;
+use EliteDevSquad\SidecarLaravel\Http\Requests\ExecuteTinkerRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;

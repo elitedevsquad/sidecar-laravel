@@ -1,8 +1,8 @@
 <?php
 
-namespace EliteDevSquad\Sidecar\Http\Controllers;
+namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
-use EliteDevSquad\Sidecar\Http\Requests\ExecuteFakeClockRequest;
+use EliteDevSquad\SidecarLaravel\Http\Requests\ExecuteFakeClockRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 

@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use EliteDevSquad\Sidecar\Providers\SidecarServiceProvider;
+use EliteDevSquad\SidecarLaravel\Providers\SidecarServiceProvider;
 use Illuminate\Contracts\Console\Kernel;
 use LaraDumps\LaraDumps\LaraDumpsServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
