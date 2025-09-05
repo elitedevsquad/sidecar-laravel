@@ -95,7 +95,7 @@ public function boot(): void
 Add the following code to your main JavaScript file (`resources/js/app.js`) to initialize the Sidecar script. This allows the tool to load on your site.
 
 ```javascript
-import { Sidecar } from "../../vendor/devsquad-sidecar/resources/js/index.js";
+import { Sidecar } from "../../vendor/elitedevsquad/sidecar-laravel/resources/js/index.js";
 
 document.addEventListener("DOMContentLoaded", () => new Sidecar());
 ```
