@@ -3,6 +3,7 @@
 namespace EliteDevSquad\SidecarLaravel\Providers;
 
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
+use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
