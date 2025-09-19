@@ -28,6 +28,13 @@ class TestDatabase
             $table->string('email')->unique();
             $table->timestamps();
         });
+
+        Schema::create('roles', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->unsignedBigInteger('user_id');
+            $table->timestamps();
+        });
     }
 
     public static function seed(): void
@@ -35,6 +42,7 @@ class TestDatabase
         Schema::disableForeignKeyConstraints();
 
         DB::table('users')->truncate();
+        DB::table('roles')->truncate();
 
         Schema::enableForeignKeyConstraints();
 
@@ -46,6 +54,16 @@ class TestDatabase
         DB::table('users')->insert([
             'name' => 'John Doe',
             'email' => 'jonh_doe@gmail.com',
+        ]);
+
+        DB::table('roles')->insert([
+            'name' => 'admin',
+            'user_id' => 1,
+        ]);
+
+        DB::table('roles')->insert([
+            'name' => 'user',
+            'user_id' => 2,
         ]);
     }
 }

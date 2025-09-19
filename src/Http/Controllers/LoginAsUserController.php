@@ -14,6 +14,8 @@ readonly class LoginAsUserController
 
         session()->put('fake_login', true);
 
+        cache()->forget('sidecar_current_user');
+
         Auth::loginUsingId($data['user_id']);
 
         return response()->json([

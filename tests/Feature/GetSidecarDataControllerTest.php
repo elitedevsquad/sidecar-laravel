@@ -2,29 +2,33 @@
 
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use EliteDevSquad\SidecarLaravel\Sidecar;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Tests\User;
 
 use function Pest\Laravel\{actingAs, getJson, withoutMiddleware};
+use function PHPUnit\Framework\{assertInstanceOf};
 
 beforeEach(function () {
     $this->user = User::first();
-    $this->bridge = Mockery::mock(Sidecar::class);
+    $this->sidecar = Mockery::mock(Sidecar::class);
 
-    $this->bridge->shouldReceive('getUserModel')->andReturn(User::class);
-    $this->bridge->shouldReceive('getUserMap')->andReturn([
-        'id' => 'id',
-        'name' => 'name',
-        'email' => 'email',
-        'role' => 'role',
-    ]);
+    $this->sidecar->shouldReceive('getUserModel')->andReturn(User::class);
 
-    app()->instance(Sidecar::class, $this->bridge);
+    app()->instance(Sidecar::class, $this->sidecar);
 
     actingAs($this->user);
 });
 
 it('returns full JSON payload', function () {
+    $this->sidecar->shouldReceive('getUserMap')->andReturn([
+        'id' => 'id',
+        'name' => 'name',
+        'email' => 'email',
+        'role' => 'admin',
+    ]);
+    $this->sidecar->shouldReceive('getUserQueryBuilder')->andReturn(User::query());
+
     Config::set('app.name', 'My App');
     Config::set('devsquad-sidecar.enabled', true);
     Config::set('devsquad-sidecar.auth_token', 'test_token');
@@ -58,5 +62,78 @@ it('returns full JSON payload', function () {
         ],
         'commands' => ['migrate'],
         'branch_url' => 'http://repo/branch',
+    ]);
+});
+
+it('should replace userQuery with custom query', function () {
+    $this->sidecar->shouldReceive('getUserMap')->andReturn([
+        'id' => 'id',
+        'name' => 'name',
+        'email' => 'email',
+        'role' => 'admin',
+    ]);
+
+    $this->sidecar->shouldReceive('getUserQueryBuilder')->andReturnUsing(function () {
+        return User::query()->where('id', $this->user->id);
+    });
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    $response = getJson('__devsquad-sidecar/data')
+        ->assertOk();
+
+    $response->assertJsonCount(1, 'users');
+
+    $response->assertJson([
+        'users' => [
+            [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+                'role' => 'user',
+            ],
+        ],
+    ]);
+});
+
+it('resolves user query builder instance', function () {
+    Sidecar::$userBuilder = User::query()->where('id', 1);
+
+    assertInstanceof(Builder::class, Sidecar::$userBuilder);
+});
+
+it('retrieves nested relation fields from userMap', function () {
+    $this->sidecar->shouldReceive('getUserQueryBuilder')->andReturn(User::with('role'));
+    $this->sidecar->shouldReceive('getUserMap')->andReturn(
+        [
+            'id' => 'id',
+            'name' => 'name',
+            'email' => 'email',
+            'role' => 'role.name',
+        ]
+    );
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    $response = getJson('__devsquad-sidecar/data')
+        ->assertOk();
+
+    $response->assertJsonCount(2, 'users');
+
+    $response->assertJson([
+        'users' => [
+            [
+                'id' => 1,
+                'name' => 'Luan',
+                'email' => 'luanfreitas10@protonmail.com',
+                'role' => 'admin',
+            ],
+            [
+                'id' => 2,
+                'name' => 'John Doe',
+                'email' => 'jonh_doe@gmail.com',
+                'role' => 'user',
+            ],
+        ],
     ]);
 });
