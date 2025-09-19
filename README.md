@@ -58,7 +58,7 @@ public function boot(): void
     Sidecar::$userMap = [
         'id'    => 'id',
         'name'  => 'first_name', // adjust to your column
-        'role'  => 'role',       // adjust if you have a role attribute
+        'role'  => 'role.name',  // adjust if you have a role attribute
         'email' => 'email',
     ];
     
