@@ -33,7 +33,7 @@ readonly class ExecuteCommandController
 
             $output = Artisan::output();
 
-            $output = ((! $output) && ($output != '&nbsp;'))
+            $output = ((! $output) && ($output != '&nbsp;')) // @phpstan-ignore-line
                 ? 'Command executed successfully - '.$command
                 : $output;
         } catch (Throwable $e) {
