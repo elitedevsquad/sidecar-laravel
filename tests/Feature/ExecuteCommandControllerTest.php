@@ -50,3 +50,11 @@ it('handles exception when executing artisan command', function () {
             'output' => 'Error executing command: The command "bad" does not exist.',
         ]);
 });
+
+it('handles default output when no output is provided', function () {
+    postJson('__devsquad-sidecar/execute-command', [
+        'command' => 'tinker --execute="empty"',
+    ])
+        ->assertOk()
+        ->assertContent('{"output":"Command executed successfully - tinker --execute=\"empty\""}');
+});
