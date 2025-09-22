@@ -10,7 +10,7 @@ readonly class SetSidecarTokenController
     public function __invoke(Request $request): JsonResponse
     {
         $request->validate([
-            'token' => 'required|string|max:80|regex:/^[a-zA-Z0-9\-_]+$/',
+            'token' => 'required|string|max:80',
         ]);
 
         $token = $request->input('token');
