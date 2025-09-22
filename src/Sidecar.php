@@ -6,6 +6,8 @@ class Sidecar
 {
     public static string $userModel = \App\Models\User::class; // @phpstan-ignore-line
 
+    public static mixed $userBuilder;
+
     /**
      * @var array<string, string>
      */
@@ -27,5 +29,10 @@ class Sidecar
     public static function getUserModel(): string
     {
         return self::$userModel;
+    }
+
+    public static function getUserQueryBuilder(): mixed
+    {
+        return self::$userBuilder;
     }
 }

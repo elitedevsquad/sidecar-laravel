@@ -4,13 +4,12 @@ namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use EliteDevSquad\SidecarLaravel\Http\Resources\SidecarUserResource;
 use EliteDevSquad\SidecarLaravel\Sidecar;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\{Auth, Cache};
 
 class GetSidecarDataController
 {
-    public function __construct(private readonly Sidecar $bridge) {}
+    public function __construct(private readonly Sidecar $sidecar) {}
 
     public function __invoke(): JsonResponse
     {
@@ -29,7 +28,7 @@ class GetSidecarDataController
         return response()->json([
             'enabled' => true,
             'project_name' => $projectName,
-            'current_user' => Auth::id(),
+            'current_user' => Cache::rememberForever('sidecar_current_user', fn () => Auth::id()),
             'branch' => $this->getBranch(),
             'database' => $database,
             'environment' => app()->environment(),
@@ -52,12 +51,9 @@ class GetSidecarDataController
      */
     private function getUsers(): array
     {
-        $userModel = $this->bridge->getUserModel();
+        $builder = $this->sidecar->getUserQueryBuilder();
 
-        /** @var Model $model */
-        $model = app($userModel);
-
-        $users = $model::query()->get();
+        $users = $builder->get(); // @phpstan-ignore-line
 
         return SidecarUserResource::collection($users)->all(); // @phpstan-ignore-line
     }

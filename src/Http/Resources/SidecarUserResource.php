@@ -15,15 +15,15 @@ class SidecarUserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var Sidecar $bridge */
-        $bridge = app(Sidecar::class);
-        $userMap = $bridge->getUserMap();
+        /** @var Sidecar $sidecar */
+        $sidecar = app(Sidecar::class);
+        $userMap = $sidecar->getUserMap();
 
         return [
-            'id' => $this->resource->{$userMap['id']},
-            'name' => $this->resource->{$userMap['name']},
-            'email' => $this->resource->{$userMap['email']},
-            'role' => $this->resource->{$userMap['role']} ?? 'user',
+            'id' => data_get($this->resource, $userMap['id']),
+            'name' => data_get($this->resource, $userMap['name']),
+            'email' => data_get($this->resource, $userMap['email']),
+            'role' => data_get($this->resource, $userMap['role']) ?? 'user',
         ];
     }
 }

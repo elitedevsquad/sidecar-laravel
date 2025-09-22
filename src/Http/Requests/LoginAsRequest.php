@@ -17,9 +17,9 @@ class LoginAsRequest extends FormRequest
     /**
      * @return array<string, list<string|string>>
      */
-    public function rules(Sidecar $bridge): array
+    public function rules(Sidecar $sidecar): array
     {
-        $userModel = $bridge->getUserModel();
+        $userModel = $sidecar->getUserModel();
 
         /** @var Model $userInstance */
         $userInstance = new $userModel();
