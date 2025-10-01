@@ -2,28 +2,26 @@
 
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
-use DateTimeInterface;
 use EliteDevSquad\SidecarLaravel\Http\Requests\ExecuteCommandRequest;
+use EliteDevSquad\SidecarLaravel\Traits\WithFakeClock;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Throwable;
 
 readonly class ExecuteCommandController
 {
+    use WithFakeClock;
+
     public function __invoke(ExecuteCommandRequest $request): JsonResponse
     {
         /**
          * @var array{
          *     command: string,
-         *     clock?: string|int|float|DateTimeInterface|null
          * } $data
          */
         $data = $request->validated();
 
-        if (isset($data['clock']) && config('devsquad-sidecar.fake_clock_enabled')) {
-            Carbon::setTestNow($request->date('clock'));
-        }
+        $this->setFakeClock();
 
         try {
             /** @var string $command */

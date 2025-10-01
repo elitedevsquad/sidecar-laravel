@@ -27,7 +27,7 @@ class ExecuteFakeClockController
 
         Carbon::setTestNow();
 
-        session()->forget('sidecar_fake_clock');
+        session(['sidecar_fake_clock' => null]);
 
         return response()->json(['output' => 'Fake clock reset to real time']);
     }
