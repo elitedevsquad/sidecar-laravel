@@ -28,7 +28,12 @@ readonly class ExecuteCommandController
             $command = $data['command'];
 
             Artisan::call($command);
+
             $output = Artisan::output();
+
+            $output = ((! $output) && ($output != '&nbsp;')) // @phpstan-ignore-line
+                ? 'Command executed successfully - '.$command
+                : $output;
         } catch (Throwable $e) {
             $output = 'Error executing command: '.$e->getMessage();
         }

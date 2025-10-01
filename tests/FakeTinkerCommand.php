@@ -18,6 +18,10 @@ class FakeTinkerCommand extends Command
             throw new \RuntimeException('oops');
         }
 
+        if ($code === 'empty') {
+            return self::SUCCESS;
+        }
+
         $this->line('Booting Laravel... for this Tinker session. Result: 2');
 
         return self::SUCCESS;
