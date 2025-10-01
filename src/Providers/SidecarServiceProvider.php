@@ -2,6 +2,7 @@
 
 namespace EliteDevSquad\SidecarLaravel\Providers;
 
+use DateTimeInterface;
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Routing\Router;
@@ -26,7 +27,11 @@ class SidecarServiceProvider extends BaseServiceProvider
 
         if (session()->has('sidecar_fake_clock')) {
             Log::debug('Fake clock activated by devsquad sidecar');
-            Carbon::setTestNow(session('sidecar_fake_clock'));
+
+            /** @var \Closure|DateTimeInterface|string|false|null $clock */
+            $clock = session('sidecar_fake_clock');
+
+            Carbon::setTestNow($clock);
         }
     }
 
