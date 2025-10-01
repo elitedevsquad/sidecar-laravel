@@ -18,7 +18,6 @@ class ExecuteCommandRequest extends FormRequest
     {
         return [
             'command' => ['string', 'required'],
-            'clock' => ['nullable', 'date', 'date_format:Y-m-d H:i:s'],
         ];
     }
 }

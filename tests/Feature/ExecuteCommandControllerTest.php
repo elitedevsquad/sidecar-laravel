@@ -19,9 +19,10 @@ it('executes a valid artisan command', function () {
 it('change clock when clock input is provided', function () {
     $newTime = now()->addDays(2)->toDateTimeString();
 
+    session(['sidecar_fake_clock' => $newTime]);
+
     postJson('__devsquad-sidecar/execute-command', [
         'command' => 'view:clear',
-        'clock' => $newTime,
     ])
         ->assertOk()
         ->assertContent('{"output":"\n   INFO  Compiled views cleared successfully.  \n\n"}');

@@ -18,7 +18,6 @@ class ExecuteTinkerRequest extends FormRequest
     {
         return [
             'code' => ['required', 'string'],
-            'clock' => ['nullable', 'date', 'string', 'date_format:Y-m-d H:i:s'],
         ];
     }
 

@@ -22,9 +22,10 @@ it('handles exception when executing tinker code', function () {
 it('change clock when clock input is provided', function () {
     $newTime = now()->addDays(2)->toDateTimeString();
 
+    session(['sidecar_fake_clock' => $newTime]);
+
     postJson('__devsquad-sidecar/execute-tinker', [
         'code' => base64_encode('now()'),
-        'clock' => $newTime,
     ])
         ->assertOk();
 

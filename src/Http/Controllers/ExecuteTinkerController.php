@@ -2,29 +2,26 @@
 
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
-use Carbon\{Month, WeekDay};
-use DateTimeInterface;
 use EliteDevSquad\SidecarLaravel\Http\Requests\ExecuteTinkerRequest;
+use EliteDevSquad\SidecarLaravel\Traits\WithFakeClock;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Throwable;
 
 readonly class ExecuteTinkerController
 {
+    use WithFakeClock;
+
     public function __invoke(ExecuteTinkerRequest $request): JsonResponse
     {
         /**
          * @var array{
-         *     code: string,
-         *     clock?: Month|WeekDay|DateTimeInterface|float|int|string|null
+         *     code: string
          * } $data
          */
         $data = $request->validated();
 
-        if (isset($data['clock']) && config('devsquad-sidecar.fake_clock_enabled')) {
-            Carbon::setTestNow($request->date('clock'));
-        }
+        $this->setFakeClock();
 
         try {
             Artisan::call('tinker', ['--execute' => $data['code']]);
