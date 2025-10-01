@@ -5,7 +5,7 @@ namespace EliteDevSquad\SidecarLaravel\Providers;
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Routing\Router;
-use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Illuminate\Support\{Carbon, Facades\Log, ServiceProvider as BaseServiceProvider};
 
 class SidecarServiceProvider extends BaseServiceProvider
 {
@@ -23,6 +23,11 @@ class SidecarServiceProvider extends BaseServiceProvider
         );
 
         $router->aliasMiddleware('devsquad-sidecar-auth', SidecarMiddleware::class);
+
+        if (session()->has('sidecar_fake_clock')) {
+            Log::debug('Fake clock activated by devsquad sidecar');
+            Carbon::setTestNow(session('sidecar_fake_clock'));
+        }
     }
 
     public function register(): void
