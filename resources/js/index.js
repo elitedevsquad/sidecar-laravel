@@ -2,6 +2,7 @@ export class Sidecar {
     constructor() {
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
         this.init();
+        this.consoleShown = false;
     }
 
     async init() {
@@ -54,11 +55,14 @@ export class Sidecar {
             return;
         }
 
-        console.log(
-            `\n%cDevSquad Sidecar Enabled\n%cProject: ${data.project_name}`,
-            "color:#28ef00;font-size:1em;",
-            "color:#aaa;font-size:0.9em;"
-        );
+        if (!this.consoleShown) {
+            console.log(
+                `\n%cDevSquad Sidecar Enabled\n%cProject: ${data.project_name}`,
+                "color:#28ef00;font-size:1em;",
+                "color:#aaa;font-size:0.9em;"
+            );
+            this.consoleShown = true;
+        }
 
         this.dispatch("sidecar:to:extension:data", data);
     }
@@ -75,12 +79,17 @@ export class Sidecar {
             } else {
                 localStorage.setItem("sidecar_authenticated", "true");
                 alert("🎉 API token set successfully!");
+                window.location.reload();
             }
         });
 
         window.addEventListener("sidecar:to:page:selectUser", ({ detail }) => {
             this.handleUserLogin(detail.id);
         });
+
+        window.addEventListener("sidecar:to:page::refresh", async () => {
+            await this.fetchInitialData();
+        })
 
         const commandEndpoints = {
             "sidecar:to:page:executeCommand": ["/__devsquad-sidecar/execute-command", "sidecar:to:extension:commandOutput"],
