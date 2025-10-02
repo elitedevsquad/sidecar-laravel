@@ -12,6 +12,10 @@ class FakeClockMiddleware
 {
     public function handle(Request $request, Closure $next): mixed
     {
+        if (app()->isProduction()) {
+            return $next($request);
+        }
+
         if (session()->has('sidecar_fake_clock')) {
             Log::debug('Fake clock activated by DevSquad Sidecar');
 
