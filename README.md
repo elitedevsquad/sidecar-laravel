@@ -30,7 +30,7 @@ Add the following:
 ```env
 DS_SIDECAR_ENABLED=true
 
-VITE_DS_SIDECAR_ENABLED=${DS_SIDECAR_ENABLED}
+VITE_DS_SIDECAR_ENABLED="${DS_SIDECAR_ENABLED}"
 DS_SIDECAR_TINKER_ENABLED=true
 DS_SIDECAR_LINK_ENVOYER=https://envoyer.io/projects/xxxxxx
 DS_SIDECAR_LINK_MAIL=https://xxx-mail.sbx.devsquad.app
