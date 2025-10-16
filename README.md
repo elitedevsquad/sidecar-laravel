@@ -1,54 +1,57 @@
 # DevSquad Sidecar
 
-DevSquad Sidecar enables developers and QA teams to inspect environment info, view the current Git branch, and run Artisan commands directly from the browser.
+DevSquad Sidecar lets developers and QA test Laravel apps directly from the browser.
 
 ## Requirements
 
-* **PHP:** `^8.2`
-* **Laravel:** `^11.0`
+- **PHP:** `^8.2`
+- **Laravel:** `^11` or `^12`
 
 ---
 
-### Install Package
+### 1 — Install
 
 ```bash
 composer require elitedevsquad/sidecar-laravel
+```
 
+### 2 — Publish Config
+
+```bash
 php artisan vendor:publish --tag="devsquad-sidecar"
 ```
 
-### Configure Options
+This creates `config/devsquad-sidecar.php`, where you can customize options.
 
-Edit `config/devsquad-sidecar.php` or set values in your `.env`:
+### 3 — Configure `.env`
 
-| Option             | Default (`.env`)              | Description                                  |
-|--------------------|-------------------------------|----------------------------------------------|
-| `enabled`          | `DS_SIDECAR_ENABLED`          | Enable or disable Sidecar.                   |
-| `auth_token`       | `DS_SIDECAR_AUTH_TOKEN`       | Secret token for authentication.             |
-| `commands_enabled` | `DS_SIDECAR_COMMANDS_ENABLED` | Allow running Artisan commands.              |
-| `tinker_enabled`   | `DS_SIDECAR_TINKER_ENABLED`   | Enable Tinker console in the browser.        |
-| `links`            | `DS_SIDECAR_LINK_*`           | Quick links displayed in the panel.          |
-| `commands`         | (Array of commands)           | Pre-approved Artisan commands.               |
-| `branch_name`      | `HEADER_BRANCH_NAME`          | Git branch name to display.                  |
-| `branch_url`       | `DS_SIDECAR_BRANCH_URL`       | URL for the branch (e.g., GitHub/Bitbucket). |
-
-### Update `.env`
+Add the following:
 
 ```env
 DS_SIDECAR_ENABLED=true
+
+VITE_DS_SIDECAR_ENABLED=${DS_SIDECAR_ENABLED}
 DS_SIDECAR_TINKER_ENABLED=true
-DS_SIDECAR_COMMANDS_ENABLED=true
-DS_SIDECAR_LINK_ENVOYER="https://envoyer.io/projects/xxxxxx"
-DS_SIDECAR_LINK_MAIL="https://xxx-mail.sbx.devsquad.app"
-DS_SIDECAR_BRANCH_URL="https://bitbucket.org/elitedevsquad/xxxxxx/branches/"
-DS_SIDECAR_AUTH_TOKEN="your-auth-token-here"
+DS_SIDECAR_LINK_ENVOYER=https://envoyer.io/projects/xxxxxx
+DS_SIDECAR_LINK_MAIL=https://xxx-mail.sbx.devsquad.app
+DS_SIDECAR_AUTH_TOKEN=your-auth-token-here
+DS_SIDECAR_BRANCH_URL=https://bitbucket.org/elitedevsquad/project-here/branches/
 ```
 
----
+### 4 — Add CSRF Meta Tag
 
-### Map User Fields
+In your main layout (resources/views/layouts/app.blade.php), add:
 
-In `app/Providers/AppServiceProvider.php`, add inside `boot()`:
+```html
+<meta name="csrf-token" content="{{ csrf_token() }}">
+```
+
+Reference: https://laravel.com/docs/12.x/csrf#csrf-x-csrf-token
+
+
+### 5 — User Mapping
+
+In `AppServiceProvider.php`:
 
 ```php
 use EliteDevSquad\SidecarLaravel\Sidecar;
@@ -66,22 +69,43 @@ public function boot(): void
 }
 ```
 
-> Maps your User model fields to Sidecar display fields. Adjust keys to match your model.
+### 6 — Frontend Setup
 
----
-
-### Frontend Setup
-
-**Import Sidecar JS in `resources/js/app.js`:**
-
-```javascript
-import { Sidecar } from "../../vendor/elitedevsquad/sidecar-laravel/resources/js/index.js";
-
-document.addEventListener("DOMContentLoaded", () => new Sidecar());
+```bash
+touch resources/js/devsquad-sidecar.js
 ```
 
-**Build Assets**
+```javascript
+// resources/js/devsquad-sidecar.js
+import { Sidecar } from "../../vendor/devsquad-sidecar/resources/js/index.js";
+
+if (import.meta.env.VITE_DS_SIDECAR_ENABLED === "true") {
+    document.addEventListener("DOMContentLoaded", () => new Sidecar());
+}
+```
+
+```javascript
+// resources/js/app.js
+import "./devsquad-sidecar";
+```
+
+Then build your assets:
 
 ```bash
 npm run build
 ```
+
+### Step 7 — Fill Branch on Servers Without Git
+
+For servers like Envoyer without a Git repo, add a release hook (envoyer example):
+
+```html
+cd {{ release }}
+
+sed -i '' -e '/HEADER_BRANCH_NAME/d' .env
+echo HEADER_BRANCH_NAME="{{branch}}" >> .env
+```
+
+### Usage
+
+After setup, a Sidecar icon will appear on your site. Click it to open the tool. On first use, you will need to enter your `DS_SIDECAR_AUTH_TOKEN` in the extension's settings to authenticate.
