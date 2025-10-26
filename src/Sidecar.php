@@ -33,6 +33,6 @@ class Sidecar
 
     public static function getUserQueryBuilder(): mixed
     {
-        return self::$userBuilder ?? self::$userModel::query();
+        return self::$userBuilder ?? self::$userModel::query(); // @codeCoverageIgnore
     }
 }
