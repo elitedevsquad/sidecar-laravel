@@ -95,7 +95,7 @@ export class Sidecar {
             "sidecar:to:page:executeCommand": ["/__devsquad-sidecar/execute-command", "sidecar:to:extension:commandOutput"],
             "sidecar:to:page:executeTinker": ["/__devsquad-sidecar/execute-tinker", "sidecar:to:extension:tinkerOutput"],
             "sidecar:to:page:executeFakeClock": ["/__devsquad-sidecar/execute-fake-clock", "sidecar:to:extension:fakeClockOutput"],
-            "sidecar:to:page:executeTInkerOnQueue": ["/__devsquad-sidecar/execute-tinker-on-queue", "sidecar:to:extension:tinkerOutput"],
+            "sidecar:to:page:executeTinkerOnQueue": ["/__devsquad-sidecar/execute-tinker-on-queue", "sidecar:to:extension:tinkerOutput"],
         };
 
         for (const event in commandEndpoints) {
