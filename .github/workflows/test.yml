@@ -20,6 +20,9 @@ jobs:
       matrix:
         php-version: [ 8.5, 8.4, 8.3, 8.2 ]
         laravel-version: [ 12.*, 11.* ]
+        exclude:
+          - php-version: 8.5
+            laravel-version: 11.*
       fail-fast: false
 
     name: PHP:${{ matrix.php-version }} / L:${{ matrix.laravel-version }}
