@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [ 8.4, 8.3, 8.2 ]
+        php-version: [ 8.5, 8.4, 8.3, 8.2 ]
         laravel-version: [ 12.*, 11.* ]
       fail-fast: false
 
