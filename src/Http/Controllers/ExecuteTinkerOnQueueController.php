@@ -23,6 +23,14 @@ readonly class ExecuteTinkerOnQueueController
 
         $this->setFakeClock();
 
+        $batchEnabled = config('devsquad-sidecar.tinker_use_batch', true);
+
+        if (! $batchEnabled) {
+            SideCarExecuteTinkerJob::dispatch($data['code']);
+
+            return response()->json(['output' => 'Job dispatched']);
+        }
+
         $batch = Bus::batch([
             new SideCarExecuteTinkerJob($data['code']),
         ])->allowFailures()

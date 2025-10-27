@@ -36,6 +36,7 @@ DS_SIDECAR_LINK_ENVOYER=https://envoyer.io/projects/xxxxxx
 DS_SIDECAR_LINK_MAIL=https://xxx-mail.sbx.devsquad.app
 DS_SIDECAR_AUTH_TOKEN=your-auth-token-here
 DS_SIDECAR_BRANCH_URL=https://bitbucket.org/elitedevsquad/project-here/branches/
+DS_SIDECAR_TINKER_USE_BATCH=true
 ```
 
 ### 4 — Add CSRF Meta Tag

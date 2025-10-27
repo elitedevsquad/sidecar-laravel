@@ -3,61 +3,22 @@
 return [
     'enabled' => env('DS_SIDECAR_ENABLED', true),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Auth Token
-    |--------------------------------------------------------------------------
-    |
-    | This option sets the authentication token required for secure access
-    | to the sidecar endpoints. Set this to a unique, secret value.
-    |
-    */
+    // Authentication token for secure Sidecar access
     'auth_token' => env('DS_SIDECAR_AUTH_TOKEN', ''),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Commands enabled
-    |--------------------------------------------------------------------------
-    |
-    | This option allows you to enable or disable the execution of Artisan
-    | commands from the sidecar.
-    |
-    */
+    // Enable or disable Artisan command execution
     'commands_enabled' => env('DS_SIDECAR_COMMANDS_ENABLED', true),
 
-    /*
-    |
-    |--------------------------------------------------------------------------
-    | Tinker enabled
-    |--------------------------------------------------------------------------
-    |
-    | This option allows you to enable or disable the Tinker functionality
-    | from the sidecar.
-    |
-    */
+    // Enable or disable Tinker functionality
     'tinker_enabled' => env('DS_SIDECAR_TINKER_ENABLED', true),
 
-    /*
-    |
-    |--------------------------------------------------------------------------
-    | Fake Clock enabled
-    |--------------------------------------------------------------------------
-    |
-    | This option allows you to enable or disable the Fake Clock functionality
-    |
-    */
+    // Run Tinker queued jobs using batch mode
+    'tinker_use_batch' => env('DS_SIDECAR_TINKER_USE_BATCH', true),
+
+    // Enable or disable the Fake Clock feature
     'fake_clock_enabled' => env('DS_SIDECAR_FAKE_CLOCK_ENABLED', true),
 
-    /*
-    |
-    |--------------------------------------------------------------------------
-    | Links
-    |--------------------------------------------------------------------------
-    |
-    | This option allows you to define custom links that will be displayed
-    | in the sidecar. Each link should have a 'name' and a 'url'.
-    |
-    */
+    // Custom links displayed in the Sidecar panel
     'links' => [
         [
             'name' => 'Admin',
@@ -77,16 +38,7 @@ return [
         ],
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Commands
-    |--------------------------------------------------------------------------
-    |
-    | This option allows you to define custom Artisan commands that can be
-    | executed from the sidecar.
-    |
-    */
-
+    // Custom Artisan commands available from the Sidecar
     'commands' => [
         [
             'name' => 'Clear cached optimized files',
@@ -94,17 +46,7 @@ return [
         ],
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Branch Name and URL
-    |--------------------------------------------------------------------------
-    |
-    | These options allow you to specify the branch name and URL that will
-    | be displayed in the sidecar.
-    |
-    */
-
+    // Git branch information displayed in the Sidecar
     'branch_name' => env('HEADER_BRANCH_NAME', ''),
-
     'branch_url' => env('DS_SIDECAR_BRANCH_URL', ''),
 ];

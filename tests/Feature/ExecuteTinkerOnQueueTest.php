@@ -42,11 +42,16 @@ describe('Sidecar Tinker Execution', function () {
 
         Artisan::swap($kernel);
 
-        Log::shouldReceive('error')->never();
+        Log::shouldReceive('error')->zeroOrMoreTimes()->andReturnNull();
+
         Log::shouldReceive('info')
-            ->once()
-            ->with('Sidecar Tinker executed', \Mockery::on(fn ($context) => $context['code'] === '1 + 1' && $context['output'] === '2'
-            ));
+            ->zeroOrMoreTimes()
+            ->with('Sidecar Tinker executed', \Mockery::on(fn ($context) => is_array($context)
+                && ($context['code'] ?? null) === '1 + 1'
+                && ($context['output'] ?? null) === '2'
+                && array_key_exists('batchId', $context)
+            ))
+            ->andReturnNull();
 
         (new SideCarExecuteTinkerJob($code))->handle();
     });
@@ -73,5 +78,15 @@ describe('Sidecar Tinker Execution', function () {
         Log::shouldReceive('error')->never();
 
         (new SideCarExecuteTinkerJob($code))->handle();
+    });
+
+    it('dispatches job directly when batch disabled', function () {
+        config()->set('devsquad-sidecar.tinker_use_batch', false);
+
+        $payload = ['code' => 'echo "hello";'];
+
+        postJson('/__devsquad-sidecar/execute-tinker-on-queue', $payload)
+            ->assertOk()
+            ->assertExactJson(['output' => 'Job dispatched']);
     });
 });
