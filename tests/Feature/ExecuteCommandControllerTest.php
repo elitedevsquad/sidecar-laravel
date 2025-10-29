@@ -1,10 +1,12 @@
 <?php
 
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
+use Illuminate\Support\Carbon;
 
 use function Pest\Laravel\{postJson, withoutMiddleware};
 
 beforeEach(function () {
+    Carbon::setTestNow();
     withoutMiddleware(SidecarMiddleware::class);
 });
 

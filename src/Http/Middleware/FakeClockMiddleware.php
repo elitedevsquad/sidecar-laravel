@@ -13,7 +13,7 @@ class FakeClockMiddleware
     public function handle(Request $request, Closure $next): mixed
     {
         if (app()->isProduction()) {
-            return $next($request);
+            return $next($request); // @codeCoverageIgnore
         }
 
         if (session()->has('sidecar_fake_clock')) {
