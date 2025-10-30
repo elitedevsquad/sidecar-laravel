@@ -6,6 +6,7 @@ export class Sidecar {
     }
 
     async init() {
+        await this.fetchInitialData(true);
         this.setupEventListeners();
     }
 
@@ -44,8 +45,8 @@ export class Sidecar {
         }
     }
 
-    async fetchInitialData() {
-        const data = await this.request("/__devsquad-sidecar/data");
+    async fetchInitialData(withoutUsers = false) {
+        const data = await this.request("/__devsquad-sidecar/data?without_users=" + (withoutUsers ? "true" : "false"), {});
 
         if (data.error) {
             if (data.error.statusCode === 403) {
