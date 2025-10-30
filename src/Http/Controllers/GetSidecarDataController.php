@@ -4,15 +4,17 @@ namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use EliteDevSquad\SidecarLaravel\Http\Resources\SidecarUserResource;
 use EliteDevSquad\SidecarLaravel\Sidecar;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{Auth, Cache};
 
 class GetSidecarDataController
 {
     public function __construct(private readonly Sidecar $sidecar) {}
 
-    public function __invoke(): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
+        $initialRequest = $request->get('without_users') ?? 'false';
+
         /** @var string $defaultConnection */
         $defaultConnection = config('database.default', '');
 
@@ -25,6 +27,8 @@ class GetSidecarDataController
         /** @var string $projectName */
         $projectName = config('app.name', '');
 
+        $users = $initialRequest == 'false' ? $this->getUsers() : [];
+
         return response()->json([
             'enabled' => true,
             'project_name' => $projectName,
@@ -32,7 +36,7 @@ class GetSidecarDataController
             'branch' => $this->getBranch(),
             'database' => $database,
             'environment' => app()->environment(),
-            'users' => $this->getUsers(),
+            'users' => $users,
             'links' => config('devsquad-sidecar.links', []),
             'commands' => config('devsquad-sidecar.commands', []),
             'branch_url' => $branchUrl,
