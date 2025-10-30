@@ -2,8 +2,8 @@
 
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
-use EliteDevSquad\SidecarLaravel\Http\Jobs\SideCarExecuteTinkerJob;
 use EliteDevSquad\SidecarLaravel\Http\Requests\ExecuteTinkerRequest;
+use EliteDevSquad\SidecarLaravel\Jobs\SideCarExecuteTinkerJob;
 use EliteDevSquad\SidecarLaravel\Traits\WithFakeClock;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Bus;

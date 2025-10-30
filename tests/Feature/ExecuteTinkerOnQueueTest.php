@@ -1,6 +1,6 @@
 <?php
 
-use EliteDevSquad\SidecarLaravel\Http\Jobs\SideCarExecuteTinkerJob;
+use EliteDevSquad\SidecarLaravel\Jobs\SideCarExecuteTinkerJob;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\Facades\{Artisan, Bus, Log, Queue};
