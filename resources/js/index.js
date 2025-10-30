@@ -6,7 +6,6 @@ export class Sidecar {
     }
 
     async init() {
-        await this.fetchInitialData();
         this.setupEventListeners();
     }
 
