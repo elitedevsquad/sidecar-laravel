@@ -13,7 +13,7 @@ class GetSidecarDataController
 
     public function __invoke(Request $request): JsonResponse
     {
-        $initialRequest = $request->get('without_users');
+        $initialRequest = $request->get('without_users') ?? 'false';
 
         /** @var string $defaultConnection */
         $defaultConnection = config('database.default', '');
