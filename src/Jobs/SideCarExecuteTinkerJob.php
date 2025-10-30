@@ -1,6 +1,6 @@
 <?php
 
-namespace EliteDevSquad\SidecarLaravel\Http\Jobs;
+namespace EliteDevSquad\SidecarLaravel\Jobs;
 
 use Illuminate\Bus\{Batchable, Queueable};
 use Illuminate\Contracts\Queue\ShouldQueue;
