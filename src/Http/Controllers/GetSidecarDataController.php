@@ -53,7 +53,7 @@ class GetSidecarDataController
     {
         $builder = $this->sidecar->getUserQueryBuilder();
 
-        $users = $builder->get(); // @phpstan-ignore-line
+        $users = Cache::rememberForever('sidecar_users', fn () => $builder->get());
 
         return SidecarUserResource::collection($users)->all(); // @phpstan-ignore-line
     }

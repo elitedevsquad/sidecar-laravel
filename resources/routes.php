@@ -1,11 +1,12 @@
 <?php
 
-use EliteDevSquad\SidecarLaravel\Http\Controllers\{ExecuteCommandController, ExecuteTinkerOnQueueController};
-use EliteDevSquad\SidecarLaravel\Http\Controllers\{ExecuteFakeClockController,
+use EliteDevSquad\SidecarLaravel\Http\Controllers\{ClearUserCacheController,
+    ExecuteFakeClockController,
     ExecuteTinkerController,
     GetSidecarDataController,
     LoginAsUserController,
     SetSidecarTokenController};
+use EliteDevSquad\SidecarLaravel\Http\Controllers\{ExecuteCommandController, ExecuteTinkerOnQueueController};
 use Illuminate\Support\Facades\Route;
 
 if (! app()->isProduction()) {
@@ -20,6 +21,7 @@ if (! app()->isProduction()) {
             Route::post('/execute-tinker', ExecuteTinkerController::class);
             Route::post('/execute-fake-clock', ExecuteFakeClockController::class);
             Route::post('/execute-tinker-on-queue', ExecuteTinkerOnQueueController::class);
+            Route::post('/clear-user-cache', ClearUserCacheController::class);
         });
     });
 }
