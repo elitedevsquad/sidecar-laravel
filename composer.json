@@ -12,7 +12,7 @@
         "pestphp/pest": "^4.0|^3.8",
         "pestphp/pest-plugin-laravel": "^4.0|^3.2",
         "orchestra/testbench": "^10.4|^9.4",
-        "laradumps/laradumps": "^4.3",
+        "laradumps/laradumps": "^4.5",
         "larastan/larastan": "^3.0"
     },
     "scripts": {

@@ -21,7 +21,9 @@ readonly class SetSidecarTokenController
             return response()->json(status: 403);
         }
 
-        Cookie::queue('sidecar_token', $token, 60 * 24 * 7);
+        $tokenDurationInMinutes = config('devsquad-sidecar.token_duration_in_minutes');
+
+        Cookie::queue('sidecar_token', $token, $tokenDurationInMinutes);
 
         return response()->json([
             'success' => true,
