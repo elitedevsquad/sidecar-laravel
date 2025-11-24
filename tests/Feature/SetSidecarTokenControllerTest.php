@@ -49,6 +49,9 @@ it('rejects when token is not a string', function () {
 
 it('queues cookie with correct expiration time', function () {
     Config::set('devsquad-sidecar.auth_token', 'expected');
+    Config::set('devsquad-sidecar.token_duration_in_minutes', 129600); // 3 meses
+
+    $duration = config('devsquad-sidecar.token_duration_in_minutes');
 
     $response = post('__devsquad-sidecar/token', ['token' => 'expected'])
         ->assertOk()
@@ -56,9 +59,15 @@ it('queues cookie with correct expiration time', function () {
 
     $cookie = $response->getCookie('sidecar_token');
 
+    $expectedExpiration = time() + ($duration * 60);
+
     expect($cookie->getName())->toBe('sidecar_token')
         ->and($cookie->getValue())->toBe('expected')
-        ->and($cookie->getExpiresTime())->toBeGreaterThan(time());
+        ->and($cookie->getExpiresTime())->toBeGreaterThan(time())
+        ->and($cookie->getExpiresTime())
+        ->toBeGreaterThanOrEqual($expectedExpiration - 2)
+        ->and($cookie->getExpiresTime())
+        ->toBeLessThanOrEqual($expectedExpiration + 2);
 });
 
 it('returns forbidden when provided token differs from expected', function () {

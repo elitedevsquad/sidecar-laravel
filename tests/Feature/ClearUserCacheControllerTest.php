@@ -1,10 +1,9 @@
 <?php
 
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use function Pest\Laravel\post;
-use function Pest\Laravel\withoutMiddleware;
+
+use function Pest\Laravel\{post, withoutMiddleware};
 
 beforeEach(function () {
     withoutMiddleware(SidecarMiddleware::class);
