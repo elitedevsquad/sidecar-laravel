@@ -68,20 +68,6 @@ export class Sidecar {
     }
 
     setupEventListeners() {
-        window.addEventListener("sidecar:to:page:token", async ({ detail }) => {
-            const result = await this.request("/__devsquad-sidecar/token", {
-                method: "POST",
-                body: JSON.stringify({ token: detail.token }),
-            });
-
-            if (result.error) {
-                alert("❌ API token is invalid or not set.");
-            } else {
-                localStorage.setItem("sidecar_authenticated", "true");
-                alert("🎉 API token set successfully!");
-                window.location.reload();
-            }
-        });
 
         window.addEventListener("sidecar:to:page:selectUser", ({ detail }) => {
             this.handleUserLogin(detail.id);

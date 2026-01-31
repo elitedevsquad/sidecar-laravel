@@ -3,11 +3,8 @@
 return [
     'enabled' => env('DS_SIDECAR_ENABLED', true),
 
-    // Authentication token for secure Sidecar access
-    'auth_token' => env('DS_SIDECAR_AUTH_TOKEN', ''),
-
-    // Token expiration time in minutes - default 90 days: 24 * 60 * 90 = 129600
-    'token_duration_in_minutes' => env('DS_SIDECAR_TOKEN_DURATION_IN_MINUTES', 129600),
+    // Allowed IPs to execute Sidecar features (comma-separated)
+    'allowed_ips' => array_filter(array_map('trim', explode(',', env('DS_SIDECAR_ALLOWED_IPS', '')))),
 
     // Enable or disable Artisan command execution
     'commands_enabled' => env('DS_SIDECAR_COMMANDS_ENABLED', true),

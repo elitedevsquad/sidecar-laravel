@@ -6,7 +6,7 @@ use EliteDevSquad\SidecarLaravel\Http\Middleware\{FakeClockMiddleware, SidecarMi
 use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
-use Illuminate\Support\{ServiceProvider as BaseServiceProvider};
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 class SidecarServiceProvider extends BaseServiceProvider
 {

@@ -34,10 +34,9 @@ VITE_DS_SIDECAR_ENABLED="${DS_SIDECAR_ENABLED}"
 DS_SIDECAR_TINKER_ENABLED=true
 DS_SIDECAR_LINK_ENVOYER=https://envoyer.io/projects/xxxxxx
 DS_SIDECAR_LINK_MAIL=https://xxx-mail.sbx.devsquad.app
-DS_SIDECAR_AUTH_TOKEN="your-token"
+DS_SIDECAR_ALLOWED_IPS="127.0.0,192.168,10"
 DS_SIDECAR_BRANCH_URL=https://bitbucket.org/elitedevsquad/project-here/branches/
 DS_SIDECAR_TINKER_USE_BATCH=true
-DS_SIDECAR_TOKEN_DURATION_IN_MINUTES=129600
 ```
 
 ### 4 — Add CSRF Meta Tag
@@ -109,4 +108,23 @@ echo HEADER_BRANCH_NAME="{{branch}}" >> .env
 
 ### Usage
 
-After setup, a Sidecar icon will appear on your site. Click it to open the tool. On first use, you will need to enter your `DS_SIDECAR_AUTH_TOKEN` in the extension's settings to authenticate.
+After setup, a Sidecar icon will appear on your site. Click it to open the tool.
+
+**Authentication:**
+- The Sidecar requires the user to be logged in to your application.
+- IP address restricts execute commands (Tinker, Commands, Fake Clock).
+- Configure `DS_SIDECAR_ALLOWED_IPS` in your `.env` to whitelist specific IPs or IP patterns.
+- The validation uses `str_contains`, allowing partial matches (e.g., `192.168` matches all `192.168.x.x` IPs).
+- If `DS_SIDECAR_ALLOWED_IPS` is empty, all authenticated users can execute commands.
+
+**Example IP configurations:**
+```env
+# Exact IP
+DS_SIDECAR_ALLOWED_IPS="127.0.0.1"
+
+# IP range using partial match
+DS_SIDECAR_ALLOWED_IPS="192.168"  # Matches 192.168.x.x
+
+# Multiple patterns
+DS_SIDECAR_ALLOWED_IPS="127.0.0.1,192.168,10.0"  # Localhost + 192.168.x.x + 10.0.x.x
+```

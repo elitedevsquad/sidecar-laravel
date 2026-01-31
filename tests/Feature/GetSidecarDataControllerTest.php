@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Config;
 use Tests\User;
 
 use function Pest\Laravel\{actingAs, getJson, withoutMiddleware};
-use function PHPUnit\Framework\{assertInstanceOf};
+use function PHPUnit\Framework\assertInstanceOf;
 
 beforeEach(function () {
     $this->user = User::first();
@@ -45,6 +45,7 @@ it('returns full JSON payload', function () {
     $response->assertJson([
         'project_name' => 'My App',
         'enabled' => true,
+        'authenticated' => true,
         'current_user' => $this->user->id,
         'branch' => 'main',
         'database' => ':memory:',
@@ -136,4 +137,26 @@ it('retrieves nested relation fields from userMap', function () {
             ],
         ],
     ]);
+});
+
+it('returns empty users and authenticated false when not logged in', function () {
+    Config::set('devsquad-sidecar.enabled', true);
+
+    Auth::logout();
+
+    getJson('__devsquad-sidecar/data')
+        ->assertOk()
+        ->assertJson([
+            'enabled' => true,
+            'authenticated' => false,
+            'current_user' => null,
+            'users' => [],
+        ]);
+});
+
+it('aborts when sidecar is disabled', function () {
+    Config::set('devsquad-sidecar.enabled', false);
+
+    getJson('__devsquad-sidecar/data')
+        ->assertForbidden();
 });

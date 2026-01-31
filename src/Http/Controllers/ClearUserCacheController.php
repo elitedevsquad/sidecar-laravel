@@ -3,7 +3,7 @@
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use Illuminate\Http\{JsonResponse, Request};
-use Illuminate\Support\Facades\{Cache};
+use Illuminate\Support\Facades\Cache;
 use Throwable;
 
 readonly class ClearUserCacheController

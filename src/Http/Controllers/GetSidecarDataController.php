@@ -13,6 +13,10 @@ class GetSidecarDataController
 
     public function __invoke(Request $request): JsonResponse
     {
+        if (! config('devsquad-sidecar.enabled')) {
+            abort(403, 'Sidecar is disabled.');
+        }
+
         $initialRequest = $request->get('without_users') ?? 'false';
 
         /** @var string $defaultConnection */
@@ -27,12 +31,14 @@ class GetSidecarDataController
         /** @var string $projectName */
         $projectName = config('app.name', '');
 
-        $users = $initialRequest == 'false' ? $this->getUsers() : [];
+        $isAuthenticated = Auth::check();
+        $users = ($isAuthenticated && $initialRequest == 'false') ? $this->getUsers() : [];
 
         return response()->json([
             'enabled' => true,
             'project_name' => $projectName,
-            'current_user' => Cache::rememberForever('sidecar_current_user', fn () => Auth::id()),
+            'authenticated' => $isAuthenticated,
+            'current_user' => Auth::id(),
             'branch' => $this->getBranch(),
             'database' => $database,
             'environment' => app()->environment(),
@@ -42,12 +48,26 @@ class GetSidecarDataController
             'branch_url' => $branchUrl,
             'fake_clock' => session('sidecar_fake_clock'),
             'datetime' => now(),
-            'features' => [
-                'commands' => (bool) config('devsquad-sidecar.commands_enabled', false),
-                'tinker' => (bool) config('devsquad-sidecar.tinker_enabled', false),
-                'fake_clock' => (bool) config('devsquad-sidecar.fake_clock_enabled', false),
-            ],
         ]);
+    }
+
+    private function checkPermissions(Request $request): bool
+    {
+        $allowedIps = config('devsquad-sidecar.allowed_ips', []);
+
+        if (empty($allowedIps)) {
+            return true;
+        }
+
+        $clientIp = $request->ip();
+
+        foreach ($allowedIps as $allowedIp) {
+            if (str_contains($clientIp, $allowedIp)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
