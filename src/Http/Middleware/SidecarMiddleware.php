@@ -31,16 +31,17 @@ class SidecarMiddleware
             return;
         }
 
+        /** @var array<string> $allowedIps */
         $allowedIps = config('devsquad-sidecar.allowed_ips', []);
 
-        if (empty($allowedIps)) {
+        if (blank($allowedIps)) {
             return;
         }
 
         $clientIp = $request->ip();
 
         foreach ($allowedIps as $allowedIp) {
-            if (str_contains($clientIp, $allowedIp)) {
+            if ($clientIp && str_contains($clientIp, $allowedIp)) {
                 return;
             }
         }

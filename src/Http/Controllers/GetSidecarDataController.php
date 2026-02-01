@@ -51,25 +51,6 @@ class GetSidecarDataController
         ]);
     }
 
-    private function checkPermissions(Request $request): bool
-    {
-        $allowedIps = config('devsquad-sidecar.allowed_ips', []);
-
-        if (empty($allowedIps)) {
-            return true;
-        }
-
-        $clientIp = $request->ip();
-
-        foreach ($allowedIps as $allowedIp) {
-            if (str_contains($clientIp, $allowedIp)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * @return array<int, array{id: int, name: string}>
      */
