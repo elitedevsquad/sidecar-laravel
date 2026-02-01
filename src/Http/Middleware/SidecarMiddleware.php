@@ -27,7 +27,7 @@ class SidecarMiddleware
 
     private function validatePermissions(Request $request): void
     {
-        $path = '/' . ltrim($request->path(), '/');
+        $path = '/'.ltrim($request->path(), '/');
 
         if (! (str_starts_with($path, '/__devsquad-sidecar/execute-') || $path === '/__devsquad-sidecar/execute')) {
             return;
