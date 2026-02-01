@@ -108,11 +108,11 @@ class SidecarMiddleware
 
             $clientLong = ip2long($clientIp);
             $subnetLong = ip2long($subnet);
-            
+
             if ($clientLong === false || $subnetLong === false) {
                 return false;
             }
-            
+
             $maskLong = $mask === 0 ? 0 : (~0 << (32 - $mask));
 
             return ($clientLong & $maskLong) === ($subnetLong & $maskLong);
@@ -136,6 +136,7 @@ class SidecarMiddleware
 
                 if ($bitsToCheck < 8) {
                     $byteMask = (~0 << (8 - $bitsToCheck)) & 0xFF;
+
                     return ($clientByte & $byteMask) === ($subnetByte & $byteMask);
                 }
 

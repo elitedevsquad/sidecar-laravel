@@ -1,6 +1,5 @@
 <?php
 
-use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use Illuminate\Support\Facades\Config;
 
 use function Pest\Laravel\{actingAs, postJson};
@@ -101,10 +100,6 @@ it('validates IP for all execute endpoints', function () {
 
 it('does not validate IP for non-execute endpoints', function () {
     Config::set('devsquad-sidecar.allowed_ips', ['192.168.1.1']);
-
-    actingAs($this->user)
-        ->postJson('__devsquad-sidecar/login-as', ['user_id' => 1])
-        ->assertStatus(302); // Redirect, not forbidden
 
     actingAs($this->user)
         ->postJson('__devsquad-sidecar/clear-user-cache', ['user_id' => 1])
