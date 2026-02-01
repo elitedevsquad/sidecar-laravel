@@ -111,7 +111,7 @@ echo HEADER_BRANCH_NAME="{{branch}}" >> .env
 After setup, a Sidecar icon will appear on your site. Click it to open the tool.
 
 **Authentication:**
-- IP address restricts execute commands (Tinker, Commands, Fake Clock).
+- IP address restrictions apply to execute commands (Tinker, Commands, Fake Clock).
 - Configure `DS_SIDECAR_ALLOWED_IPS` in your `.env` to whitelist specific IPs.
 - If `DS_SIDECAR_ALLOWED_IPS` is empty, all authenticated users can execute commands.
 
