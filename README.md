@@ -112,18 +112,25 @@ After setup, a Sidecar icon will appear on your site. Click it to open the tool.
 
 **Authentication:**
 - IP address restricts execute commands (Tinker, Commands, Fake Clock).
-- Configure `DS_SIDECAR_ALLOWED_IPS` in your `.env` to whitelist specific IPs or IP patterns.
-- The validation uses `str_contains`, allowing partial matches (e.g., `192.168` matches all `192.168.x.x` IPs).
+- Configure `DS_SIDECAR_ALLOWED_IPS` in your `.env` to whitelist specific IPs.
 - If `DS_SIDECAR_ALLOWED_IPS` is empty, all authenticated users can execute commands.
+
+**IP Matching Rules:**
+- **Exact match**: `127.0.0.1` matches only `127.0.0.1`
+- **CIDR notation**: `192.168.1.0/24` matches `192.168.1.0` through `192.168.1.255`
+- **Prefix match**: `192.168.1` matches `192.168.1.x` (but not `192.168.10.x`)
 
 **Example IP configurations:**
 ```env
-# Exact IP
+# Single IP
 DS_SIDECAR_ALLOWED_IPS="127.0.0.1"
 
-# IP range using partial match
-DS_SIDECAR_ALLOWED_IPS="192.168"  # Matches 192.168.x.x
+# CIDR notation for IP range
+DS_SIDECAR_ALLOWED_IPS="192.168.1.0/24"
 
-# Multiple patterns
-DS_SIDECAR_ALLOWED_IPS="127.0.0.1,192.168,10.0"  # Localhost + 192.168.x.x + 10.0.x.x
+# Prefix match
+DS_SIDECAR_ALLOWED_IPS="192.168.1"
+
+# Multiple IPs/patterns
+DS_SIDECAR_ALLOWED_IPS="127.0.0.1,192.168.1.0/24,10.0.0"
 ```
