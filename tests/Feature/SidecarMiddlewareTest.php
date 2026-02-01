@@ -56,7 +56,7 @@ it('blocks IP that starts with same digits but different octet (192.168.1 should
     Config::set('devsquad-sidecar.allowed_ips', ['192.168.1']);
 
     actingAs($this->user)
-        ->from('192.168.10.1')
+        ->withServerVariables(['REMOTE_ADDR' => '192.168.10.1'])
         ->postJson('__devsquad-sidecar/execute-command', ['command' => 'view:clear'])
         ->assertForbidden();
 });
