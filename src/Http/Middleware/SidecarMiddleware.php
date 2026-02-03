@@ -43,7 +43,7 @@ class SidecarMiddleware
         $clientIp = $request->ip();
 
         if ($clientIp === null) {
-            abort(403, 'Unauthorized. Unable to determine client IP address.');
+            abort(403, 'Unauthorized. \n\nUnable to determine client IP address.');
         }
 
         foreach ($allowedIps as $allowedIp) {
@@ -52,11 +52,11 @@ class SidecarMiddleware
             }
         }
 
-        abort(403, "Unauthorized IP: {$clientIp}. You are not authorized to execute this action.");
+        abort(403, "Unauthorized IP: {$clientIp}. \n\nYou are not authorized to execute this action.");
     }
 
     /**
-     * Check if client IP matches the allowed IP pattern.
+     * Check if the client IP matches the allowed IP pattern.
      * Supports exact matches and CIDR notation.
      */
     private function ipMatches(string $clientIp, string $allowedIp): bool
