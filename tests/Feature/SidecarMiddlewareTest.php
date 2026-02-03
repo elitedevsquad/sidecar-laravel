@@ -73,7 +73,7 @@ it('allows all authenticated users when allowed_ips is empty', function () {
 
     actingAs($this->user)
         ->postJson('__devsquad-sidecar/execute-command', ['command' => 'view:clear'])
-        ->assertOk();
+        ->assertForbidden();
 });
 
 it('allows multiple IP patterns in allowed_ips', function () {
