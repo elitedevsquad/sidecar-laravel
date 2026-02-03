@@ -4,7 +4,7 @@ return [
     'enabled' => env('DS_SIDECAR_ENABLED', true),
 
     // Allowed IPs to execute Sidecar features (comma-separated)
-    'allowed_ips' => array_filter(array_map('trim', explode(',', env('DS_SIDECAR_ALLOWED_IPS', '')))),
+    'allowed_ips' => array_filter(array_map('trim', explode(',', env('DS_SIDECAR_ALLOWED_IPS', '127.0.0.1')))),
 
     // Enable or disable Artisan command execution
     'commands_enabled' => env('DS_SIDECAR_COMMANDS_ENABLED', true),

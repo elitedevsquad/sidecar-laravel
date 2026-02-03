@@ -37,7 +37,7 @@ class SidecarMiddleware
         $allowedIps = config('devsquad-sidecar.allowed_ips', []);
 
         if (blank($allowedIps)) {
-            return;
+            abort(403, 'Unauthorized. \n\nNo allowed IPs are configured.');
         }
 
         $clientIp = $request->ip();
