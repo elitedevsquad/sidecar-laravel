@@ -23,6 +23,10 @@ readonly class ExecuteTinkerController
 
         $this->setFakeClock();
 
+        if (! defined('STDIN')) {
+            define('STDIN', fopen('php://stdin', 'r'));
+        }
+
         try {
             Artisan::call('tinker', ['--execute' => $data['code']]);
             $output = Artisan::output();

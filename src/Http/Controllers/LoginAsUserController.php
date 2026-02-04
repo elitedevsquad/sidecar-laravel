@@ -10,6 +10,10 @@ readonly class LoginAsUserController
 {
     public function __invoke(LoginAsRequest $request): JsonResponse
     {
+        if (! config('devsquad-sidecar.enabled')) {
+            abort(403, 'Sidecar is disabled.');
+        }
+
         $data = $request->validated();
 
         session()->put('fake_login', true);
