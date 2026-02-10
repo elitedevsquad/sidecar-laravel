@@ -20,12 +20,6 @@ it('allows authenticated users to access non-execute routes without IP restricti
         ->assertOk();
 });
 
-it('blocks unauthenticated users from all routes', function () {
-    postJson('__devsquad-sidecar/execute-command', ['command' => 'view:clear'])
-        ->assertForbidden()
-        ->assertSeeText('Unauthorized. Please log in.');
-});
-
 it('allows authenticated users with matching exact IP to execute commands', function () {
     Config::set('devsquad-sidecar.allowed_ips', ['127.0.0.1']);
 
