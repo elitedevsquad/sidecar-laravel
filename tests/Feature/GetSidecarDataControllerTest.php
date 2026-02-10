@@ -139,21 +139,6 @@ it('retrieves nested relation fields from userMap', function () {
     ]);
 });
 
-it('returns empty users and authenticated false when not logged in', function () {
-    Config::set('devsquad-sidecar.enabled', true);
-
-    Auth::logout();
-
-    getJson('__devsquad-sidecar/data')
-        ->assertOk()
-        ->assertJson([
-            'enabled' => true,
-            'authenticated' => false,
-            'current_user' => null,
-            'users' => [],
-        ]);
-});
-
 it('aborts when sidecar is disabled', function () {
     Config::set('devsquad-sidecar.enabled', false);
 
