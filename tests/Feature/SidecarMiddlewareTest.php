@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Config;
 
-use function Pest\Laravel\{actingAs, postJson};
+use function Pest\Laravel\{actingAs};
 
 beforeEach(function () {
     Config::set('devsquad-sidecar.enabled', true);
