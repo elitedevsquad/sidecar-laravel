@@ -31,14 +31,13 @@ class GetSidecarDataController
         /** @var string $projectName */
         $projectName = config('app.name', '');
 
-        $isAuthenticated = Auth::check();
-        $users = ($isAuthenticated && $initialRequest == 'false') ? $this->getUsers() : [];
+        $users = $this->getUsers();
 
         return response()->json([
             'enabled' => true,
             'project_name' => $projectName,
-            'authenticated' => $isAuthenticated,
-            'current_user' => Auth::id(),
+            'authenticated' => true,
+            'current_user' => Cache::rememberForever('sidecar_current_user', fn () => Auth::id()),
             'branch' => $this->getBranch(),
             'database' => $database,
             'environment' => app()->environment(),
