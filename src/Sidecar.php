@@ -2,9 +2,11 @@
 
 namespace EliteDevSquad\SidecarLaravel;
 
+use App\Models\User;
+
 class Sidecar
 {
-    public static string $userModel = \App\Models\User::class; // @phpstan-ignore-line
+    public static string $userModel = User::class; // @phpstan-ignore-line
 
     public static mixed $userBuilder = null;
 

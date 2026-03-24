@@ -1,12 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Config;
+use Tests\User;
 
 use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
     Config::set('devsquad-sidecar.enabled', true);
-    $this->user = \Tests\User::create([
+    $this->user = User::create([
         'name' => 'Test User',
         'email' => 'test@example.com',
     ]);
