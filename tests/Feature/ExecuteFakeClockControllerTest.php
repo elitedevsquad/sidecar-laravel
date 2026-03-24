@@ -19,8 +19,7 @@ it('sets fake clock when datetime is provided', function () {
         'datetime' => $fakeDate,
     ])->assertOk();
 
-    $expected = Carbon::parse($fakeDate)
-        ->setTimeFromTimeString(now()->toTimeString());
+    $expected = Carbon::parse($fakeDate);
 
     $response->assertJson([
         'output' => 'Fake clock set to '.$expected->toDateTimeString(),
