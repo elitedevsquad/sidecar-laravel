@@ -16,13 +16,11 @@ class ExecuteFakeClockController
         $datetimeInput = $request->date('datetime');
 
         if ($datetimeInput) {
-            $datetime = $datetimeInput->setTimeFromTimeString(now()->toTimeString());
+            Carbon::setTestNow($datetimeInput);
 
-            Carbon::setTestNow($datetime);
+            session(['sidecar_fake_clock' => $datetimeInput->toDateTimeString()]);
 
-            session(['sidecar_fake_clock' => $datetime->toDateTimeString()]);
-
-            return response()->json(['output' => 'Fake clock set to '.$datetime->toDateTimeString()]);
+            return response()->json(['output' => 'Fake clock set to '.$datetimeInput->toDateTimeString()]);
         }
 
         Carbon::setTestNow();

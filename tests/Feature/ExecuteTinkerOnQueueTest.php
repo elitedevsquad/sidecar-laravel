@@ -27,7 +27,7 @@ describe('Sidecar Tinker Execution', function () {
     it('executes tinker code and logs the output', function () {
         $code = '1 + 1';
 
-        $kernel = \Mockery::mock(Kernel::class)
+        $kernel = Mockery::mock(Kernel::class)
             ->shouldReceive('call')
             ->once()
             ->with('tinker', ['--execute' => $code])
@@ -46,7 +46,7 @@ describe('Sidecar Tinker Execution', function () {
 
         Log::shouldReceive('info')
             ->zeroOrMoreTimes()
-            ->with('Sidecar Tinker executed', \Mockery::on(fn ($context) => is_array($context)
+            ->with('Sidecar Tinker executed', Mockery::on(fn ($context) => is_array($context)
                 && ($context['code'] ?? null) === '1 + 1'
                 && ($context['output'] ?? null) === '2'
                 && array_key_exists('batchId', $context)
@@ -58,9 +58,9 @@ describe('Sidecar Tinker Execution', function () {
 
     it('reports exceptions when tinker execution fails', function () {
         $code = '1 + 1';
-        $exception = new \RuntimeException('tinker failed');
+        $exception = new RuntimeException('tinker failed');
 
-        $kernel = \Mockery::mock(Kernel::class)
+        $kernel = Mockery::mock(Kernel::class)
             ->shouldReceive('call')
             ->once()
             ->with('tinker', ['--execute' => $code])
@@ -70,7 +70,7 @@ describe('Sidecar Tinker Execution', function () {
         app()->instance(Kernel::class, $kernel);
         Artisan::swap($kernel);
 
-        $handler = \Mockery::mock(ExceptionHandler::class);
+        $handler = Mockery::mock(ExceptionHandler::class);
         $handler->shouldReceive('report')->once()->with($exception);
         $handler->shouldReceive('render')->andReturnNull();
         app()->instance(ExceptionHandler::class, $handler);
