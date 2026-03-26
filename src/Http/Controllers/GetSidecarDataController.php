@@ -17,7 +17,7 @@ class GetSidecarDataController
             abort(403, 'Sidecar is disabled.');
         }
 
-        $initialRequest = $request->get('without_users') ?? 'false';
+        $withoutUsers = $request->boolean('without_users');
 
         /** @var string $defaultConnection */
         $defaultConnection = config('database.default', '');
@@ -31,7 +31,7 @@ class GetSidecarDataController
         /** @var string $projectName */
         $projectName = config('app.name', '');
 
-        $users = $this->getUsers();
+        $users = $withoutUsers ? [] : $this->getUsers();
 
         return response()->json([
             'enabled' => true,

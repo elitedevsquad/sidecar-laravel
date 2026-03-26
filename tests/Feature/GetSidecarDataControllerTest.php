@@ -145,3 +145,43 @@ it('aborts when sidecar is disabled', function () {
     getJson('__devsquad-sidecar/data')
         ->assertForbidden();
 });
+
+it('returns empty users array when without_users is true', function () {
+    $this->sidecar->shouldReceive('getUserMap')->andReturn([
+        'id' => 'id',
+        'name' => 'name',
+        'email' => 'email',
+        'role' => 'admin',
+    ]);
+    $this->sidecar->shouldNotReceive('getUserQueryBuilder');
+
+    Config::set('devsquad-sidecar.enabled', true);
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    $response = getJson('__devsquad-sidecar/data?without_users=true')
+        ->assertOk();
+
+    $response->assertJson([
+        'users' => [],
+    ]);
+});
+
+it('returns users when without_users is false', function () {
+    $this->sidecar->shouldReceive('getUserMap')->andReturn([
+        'id' => 'id',
+        'name' => 'name',
+        'email' => 'email',
+        'role' => 'admin',
+    ]);
+    $this->sidecar->shouldReceive('getUserQueryBuilder')->andReturn(User::query());
+
+    Config::set('devsquad-sidecar.enabled', true);
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    $response = getJson('__devsquad-sidecar/data?without_users=false')
+        ->assertOk();
+
+    $response->assertJsonCount(2, 'users');
+});
