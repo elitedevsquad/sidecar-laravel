@@ -12,7 +12,7 @@ DevSquad Sidecar lets developers and QA test Laravel apps directly from the brow
 ### 1 — Install
 
 ```bash
-composer require elitedevsquad/sidecar-laravel
+composer require elitedevsquad/sidecar-laravel --dev
 ```
 
 ### 2 — Publish Config
