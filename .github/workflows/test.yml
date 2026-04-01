@@ -23,7 +23,7 @@ jobs:
         exclude:
           - php-version: 8.5
             laravel-version: 11.*
-          - php-version: 8.3
+          - php-version: 8.2
             laravel-version: 13.*
       fail-fast: false
 
