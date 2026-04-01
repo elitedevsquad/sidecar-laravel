@@ -16,9 +16,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     strategy:
       matrix:
         php-version: [ 8.5, 8.4, 8.3, 8.2 ]
@@ -49,7 +46,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v3
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
