@@ -1,9 +1,10 @@
 <?php
 
+use Composer\InstalledVersions;
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\{Cache, Config, Http};
 use Tests\User;
 
 use function Pest\Laravel\{actingAs, getJson, withoutMiddleware};
@@ -195,8 +196,10 @@ it('returns users when without_users is false', function () {
 it('returns package_updated Yes when current version is up to date', function () {
     Config::set('devsquad-sidecar.enabled', true);
 
+    $installedVersion = InstalledVersions::getPrettyVersion('elitedevsquad/sidecar-laravel') ?? '1.0.0';
+
     Http::fake([
-        'api.github.com/*' => Http::response(['tag_name' => 'v0.0.1'], 200),
+        'api.github.com/*' => Http::response(['tag_name' => $installedVersion], 200),
     ]);
 
     Cache::forget('sidecar_package_updated');
