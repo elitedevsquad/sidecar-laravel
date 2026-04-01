@@ -5,7 +5,7 @@ DevSquad Sidecar lets developers and QA test Laravel apps directly from the brow
 ## Requirements
 
 - **PHP:** `^8.2`
-- **Laravel:** `^11` or `^12`
+- **Laravel:** `^11`
 
 ---
 
