@@ -23,6 +23,10 @@ class SideCarExecuteTinkerJob implements ShouldQueue
 
     public function handle(): void
     {
+        if (app()->isProduction()) {
+            return; // @codeCoverageIgnore
+        }
+
         if ($this->batch() && $this->batch()->cancelled()) {
             Log::debug('Sidecar Tinker job cancelled as batch was cancelled');
 

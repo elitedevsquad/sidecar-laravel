@@ -15,6 +15,13 @@ DevSquad Sidecar lets developers and QA test Laravel apps directly from the brow
 composer require elitedevsquad/sidecar-laravel --dev
 ```
 
+> **Note:** If you want Sidecar available in staging, install it as a regular dependency:
+> ```bash
+> composer require elitedevsquad/sidecar-laravel
+> ```
+
+Since the package may not be installed in all environments, always wrap Sidecar calls with `class_exists()` (see Step 5 for an example).
+
 ### 2 — Publish Config
 
 ```bash
@@ -54,18 +61,18 @@ Reference: https://laravel.com/docs/12.x/csrf#csrf-x-csrf-token
 In `AppServiceProvider.php`:
 
 ```php
-use EliteDevSquad\SidecarLaravel\Sidecar;
-
 public function boot(): void
 {
-    Sidecar::$userMap = [
-        'id'    => 'id',
-        'name'  => 'first_name', // adjust to your column
-        'role'  => 'role.name',  // adjust if you have a role attribute
-        'email' => 'email',
-    ];
-    
-    Sidecar::$userBuilder = \App\Models\User::with('role');
+    if (class_exists(\EliteDevSquad\SidecarLaravel\Sidecar::class)) {
+        \EliteDevSquad\SidecarLaravel\Sidecar::$userMap = [
+            'id'    => 'id',
+            'name'  => 'first_name', // adjust to your column
+            'role'  => 'role.name',  // adjust if you have a role attribute
+            'email' => 'email',
+        ];
+
+        \EliteDevSquad\SidecarLaravel\Sidecar::$userBuilder = \App\Models\User::with('role');
+    }
 }
 ```
 

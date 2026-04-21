@@ -16,6 +16,10 @@ class SidecarServiceProvider extends BaseServiceProvider
             __DIR__.'/../../resources/config/devsquad-sidecar.php' => config_path('devsquad-sidecar.php'),
         ], 'devsquad-sidecar');
 
+        if ($this->app->isProduction()) {
+            return; // @codeCoverageIgnore
+        }
+
         $this->loadRoutesFrom(__DIR__.'/../../resources/routes.php');
 
         $this->app->singleton(
