@@ -1,6 +1,6 @@
 export class Sidecar {
     constructor() {
-        this.baseUrl = window.__sidecarBaseUrl.replace(/\/$/, "");
+        this.baseUrl = window.__sidecarBaseUrl?.replace(/\/$/, "") || "";
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
         this.consoleShown = false;
         this.init();
