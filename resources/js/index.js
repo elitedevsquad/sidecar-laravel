@@ -1,9 +1,25 @@
 export class Sidecar {
     constructor() {
-        this.baseUrl = window.__sidecarBaseUrl?.replace(/\/$/, "") || "";
+        this.baseUrl = this._resolveBaseUrl();
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
         this.consoleShown = false;
         this.init();
+    }
+
+    _resolveBaseUrl() {
+        if (window.__sidecarBaseUrl) {
+            return window.__sidecarBaseUrl.replace(/\/$/, "");
+        }
+
+        const scriptTag = document.querySelector('script[src*="__devsquad-sidecar"]');
+        if (scriptTag) {
+            try {
+                const url = new URL(scriptTag.src);
+                return url.origin;
+            } catch (_) {}
+        }
+
+        return window.location.origin;
     }
 
     async init() {
