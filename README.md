@@ -63,7 +63,6 @@ DS_SIDECAR_ALLOWED_IPS="127.0.0.1"
 DS_SIDECAR_BRANCH_URL=https://github.com/your-org/your-repo/tree/
 DS_SIDECAR_LINK_MAIL=http://localhost:8025
 DS_SIDECAR_LINK_ENVOYER=""
-HEADER_BRANCH_NAME=
 ```
 
 **`DS_SIDECAR_ALLOWED_IPS`** supports exact IPs, CIDR ranges, and prefix matching:
