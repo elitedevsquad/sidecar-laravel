@@ -146,8 +146,7 @@ it('writes all expected DS_SIDECAR keys into .env', function () {
         ->toContain('DS_SIDECAR_ALLOWED_IPS=')
         ->toContain('DS_SIDECAR_BRANCH_URL=')
         ->toContain('DS_SIDECAR_LINK_MAIL=')
-        ->toContain('DS_SIDECAR_LINK_ENVOYER=')
-        ->toContain('HEADER_BRANCH_NAME=');
+        ->toContain('DS_SIDECAR_LINK_ENVOYER=');
 });
 
 it('mirrors all keys into .env.example', function () {
@@ -163,8 +162,7 @@ it('mirrors all keys into .env.example', function () {
         ->toContain('DS_SIDECAR_ENABLED=')
         ->toContain('DS_SIDECAR_AUTO_INJECT_ASSETS=')
         ->toContain('DS_SIDECAR_TINKER_ENABLED=')
-        ->toContain('DS_SIDECAR_LINK_ENVOYER=')
-        ->toContain('HEADER_BRANCH_NAME=');
+        ->toContain('DS_SIDECAR_LINK_ENVOYER=');
 });
 
 it('does not overwrite keys already present in .env', function () {
