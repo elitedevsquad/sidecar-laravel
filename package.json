@@ -1,0 +1,28 @@
+{
+    "name": "@elitedevsquad/sidecar-laravel",
+    "version": "1.0.0",
+    "description": "DevSquad Sidecar — browser UI for Tinker, Artisan commands, fake clock and user impersonation in Laravel apps",
+    "license": "MIT",
+    "homepage": "https://github.com/elitedevsquad/sidecar-laravel",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/elitedevsquad/sidecar-laravel.git"
+    },
+    "bugs": {
+        "url": "https://github.com/elitedevsquad/sidecar-laravel/issues"
+    },
+    "keywords": [
+        "laravel",
+        "tinker",
+        "devtools",
+        "sidecar",
+        "devsquad"
+    ],
+    "private": false,
+    "scripts": {
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "vite": "^8.0.12"
+    }
+}

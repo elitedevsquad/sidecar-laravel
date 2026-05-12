@@ -1,8 +1,9 @@
 export class Sidecar {
-    constructor() {
+    constructor(baseUrl = "") {
+        this.baseUrl = baseUrl.replace(/\/$/, "");
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
-        this.init();
         this.consoleShown = false;
+        this.init();
     }
 
     async init() {
@@ -12,7 +13,7 @@ export class Sidecar {
 
     async request(endpoint, options = {}) {
         try {
-            const response = await fetch(endpoint, {
+            const response = await fetch(this.baseUrl + endpoint, {
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json",
@@ -75,7 +76,7 @@ export class Sidecar {
 
         window.addEventListener("sidecar:to:page::refresh", async () => {
             await this.fetchInitialData();
-        })
+        });
 
         const commandEndpoints = {
             "sidecar:to:page:executeCommand": ["/__devsquad-sidecar/execute-command", "sidecar:to:extension:commandOutput"],
@@ -108,8 +109,8 @@ export class Sidecar {
             body: JSON.stringify(payload),
         });
 
-        if(data.error) {
-            console.warn('Sidecar: ', data)
+        if (data.error) {
+            console.warn('Sidecar: ', data);
         }
 
         this.dispatch(outputEvent, data.output ?? data.error.message);
@@ -119,3 +120,5 @@ export class Sidecar {
         window.dispatchEvent(new CustomEvent(event, { detail }));
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => new Sidecar(window.__sidecarBaseUrl ?? ""));

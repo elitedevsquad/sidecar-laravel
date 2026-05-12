@@ -1,64 +1,33 @@
 # DevSquad Sidecar
 
-DevSquad Sidecar lets developers and QA test Laravel apps directly from the browser.
+A Laravel library that lets developers and QA test Laravel apps directly from the browser — run Tinker code, artisan commands, manipulate the fake clock, and impersonate users.
 
-## Requirements
-
-- **PHP:** `^8.2`
-- **Laravel:** `^11`
+**Requirements:** PHP `^8.2`, Laravel `^11`
 
 ---
 
-### 1 — Install
+## Install
+
+Run from inside your Laravel project root:
 
 ```bash
-composer require elitedevsquad/sidecar-laravel --dev
+bash <(curl -fsSL https://raw.githubusercontent.com/elitedevsquad/sidecar-laravel/main/install.sh)
 ```
 
-> **Note:** If you want Sidecar available in staging, install it as a regular dependency:
-> ```bash
-> composer require elitedevsquad/sidecar-laravel
-> ```
+The script handles everything automatically:
+- `composer require elitedevsquad/sidecar-laravel --dev`
+- Publishes `config/devsquad-sidecar.php`
+- Writes all `.env` variables (auto-detects APP_URL, mail server, git remote)
+- Mirrors keys into `.env.example`
+- Injects the CSRF meta tag into any blade layout that has `<html>`, `<body>` and `<meta>`
 
-Since the package may not be installed in all environments, always wrap Sidecar calls with `class_exists()` (see Step 5 for an example).
+After running, complete the **User Mapping** step below.
 
-### 2 — Publish Config
+---
 
-```bash
-php artisan vendor:publish --tag="devsquad-sidecar"
-```
+## User Mapping
 
-This creates `config/devsquad-sidecar.php`, where you can customize options.
-
-### 3 — Configure `.env`
-
-Add the following:
-
-```env
-DS_SIDECAR_ENABLED=true
-
-VITE_DS_SIDECAR_ENABLED="${DS_SIDECAR_ENABLED}"
-DS_SIDECAR_TINKER_ENABLED=true
-DS_SIDECAR_LINK_ENVOYER=https://envoyer.io/projects/xxxxxx
-DS_SIDECAR_LINK_MAIL=https://xxx-mail.sbx.devsquad.app
-DS_SIDECAR_ALLOWED_IPS="127.0.0,192.168,10"
-DS_SIDECAR_BRANCH_URL=https://bitbucket.org/elitedevsquad/project-here/branches/
-DS_SIDECAR_TINKER_USE_BATCH=true
-```
-
-### 4 — Add CSRF Meta Tag
-
-In your main layout (resources/views/layouts/app.blade.php), add:
-
-```html
-<meta name="csrf-token" content="{{ csrf_token() }}">
-```
-
-Reference: https://laravel.com/docs/12.x/csrf#csrf-x-csrf-token
-
-### 5 — User Mapping
-
-In `AppServiceProvider.php`:
+In `AppServiceProvider.php`, configure Sidecar inside a `class_exists()` guard so the app does not break when the package is absent (e.g. production with `--no-dev`):
 
 ```php
 public function boot(): void
@@ -66,8 +35,8 @@ public function boot(): void
     if (class_exists(\EliteDevSquad\SidecarLaravel\Sidecar::class)) {
         \EliteDevSquad\SidecarLaravel\Sidecar::$userMap = [
             'id'    => 'id',
-            'name'  => 'first_name', // adjust to your column
-            'role'  => 'role.name',  // adjust if you have a role attribute
+            'name'  => 'first_name',
+            'role'  => 'role.name',
             'email' => 'email',
         ];
 
@@ -76,68 +45,71 @@ public function boot(): void
 }
 ```
 
-### 6 — Frontend Setup
+---
 
-```bash
-touch resources/js/devsquad-sidecar.js
+## Environment Variables
+
+The install script writes these automatically. Reference for manual setup or code review:
+
+```env
+# DevSquad Sidecar
+DS_SIDECAR_ENABLED=true
+VITE_DS_SIDECAR_ENABLED="${DS_SIDECAR_ENABLED}"
+DS_SIDECAR_TINKER_ENABLED=true
+DS_SIDECAR_TINKER_USE_BATCH=true
+DS_SIDECAR_COMMANDS_ENABLED=true
+DS_SIDECAR_FAKE_CLOCK_ENABLED=true
+DS_SIDECAR_ALLOWED_IPS="127.0.0.1"
+DS_SIDECAR_BRANCH_URL=https://github.com/your-org/your-repo/tree/
+DS_SIDECAR_LINK_MAIL=http://localhost:8025
+DS_SIDECAR_LINK_ENVOYER=""
+HEADER_BRANCH_NAME=
 ```
 
-```javascript
-// resources/js/devsquad-sidecar.js
-import { Sidecar } from "../../vendor/devsquad-sidecar/resources/js/index.js";
+**`DS_SIDECAR_ALLOWED_IPS`** supports exact IPs, CIDR ranges, and prefix matching:
+```env
+DS_SIDECAR_ALLOWED_IPS="127.0.0.1,192.168.1.0/24,10.0.0"
+```
 
-if (import.meta.env.VITE_DS_SIDECAR_ENABLED === "true") {
-    document.addEventListener("DOMContentLoaded", () => new Sidecar());
+**`HEADER_BRANCH_NAME`** — on servers without git (e.g. Envoyer), inject via release hook:
+```bash
+cd {{ release }}
+sed -i '' -e '/HEADER_BRANCH_NAME/d' .env
+echo HEADER_BRANCH_NAME="{{ branch }}" >> .env
+```
+
+---
+
+## Frontend
+
+**Laravel apps:** no action needed. The Sidecar JS is injected automatically before `</body>` on every non-production HTML response.
+
+**External apps (Next.js, Nuxt, etc.):** the bundle is served by the Laravel route `GET /__devsquad-sidecar/assets/js` and reads `window.__sidecarBaseUrl` at runtime to prefix all API calls.
+
+```javascript
+// e.g. pages/_app.js, app/layout.js, plugins/sidecar.js
+if (process.env.NODE_ENV !== 'production') {
+    window.__sidecarBaseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://your-laravel-app.com';
+    const s = document.createElement('script');
+    s.src = window.__sidecarBaseUrl + '/__devsquad-sidecar/assets/js';
+    s.defer = true;
+    document.head.appendChild(s);
 }
 ```
 
-```javascript
-// resources/js/app.js
-import "./devsquad-sidecar";
-```
+---
 
-Then build your assets:
+## Manual Setup
+
+If you prefer not to use the install script:
 
 ```bash
-npm run build
+composer require elitedevsquad/sidecar-laravel --dev
+php artisan vendor:publish --tag="devsquad-sidecar"
 ```
 
-### Step 7 — Fill Branch on Servers Without Git
-
-For servers like Envoyer without a Git repo, add a release hook (envoyer example):
+Then add the env variables above, configure user mapping, and ensure the CSRF meta tag is in your main layout:
 
 ```html
-cd {{ release }}
-
-sed -i '' -e '/HEADER_BRANCH_NAME/d' .env
-echo HEADER_BRANCH_NAME="{{branch}}" >> .env
-```
-
-### Usage
-
-After setup, a Sidecar icon will appear on your site. Click it to open the tool.
-
-**Authentication:**
-- IP address restrictions apply to execute commands (Tinker, Commands, Fake Clock).
-- Configure `DS_SIDECAR_ALLOWED_IPS` in your `.env` to whitelist specific IPs.
-- If `DS_SIDECAR_ALLOWED_IPS` is empty, all authenticated users can execute commands.
-
-**IP Matching Rules:**
-- **Exact match**: `127.0.0.1` matches only `127.0.0.1`
-- **CIDR notation**: `192.168.1.0/24` matches `192.168.1.0` through `192.168.1.255`
-- **Prefix match**: `192.168.1` matches `192.168.1.x` (but not `192.168.10.x`)
-
-**Example IP configurations:**
-```env
-# Single IP
-DS_SIDECAR_ALLOWED_IPS="127.0.0.1"
-
-# CIDR notation for IP range
-DS_SIDECAR_ALLOWED_IPS="192.168.1.0/24"
-
-# Prefix match
-DS_SIDECAR_ALLOWED_IPS="192.168.1"
-
-# Multiple IPs/patterns
-DS_SIDECAR_ALLOWED_IPS="127.0.0.1,192.168.1.0/24,10.0.0"
+<meta name="csrf-token" content="{{ csrf_token() }}">
 ```
