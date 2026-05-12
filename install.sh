@@ -6,7 +6,7 @@ set -euo pipefail
 # DevSquad Sidecar — Install Script
 #
 # Usage (from inside your Laravel project root):
-#   bash <(curl -fsSL https://raw.githubusercontent.com/EliteDevSquad/sidecar-laravel/main/install.sh)
+#   bash <(curl -fsSL https://raw.githubusercontent.com/elitedevsquad/sidecar-laravel/3.x/install.sh)
 # ─────────────────────────────────────────────
 
 BOLD="\033[1m"
