@@ -164,7 +164,7 @@ tests/
 One-command installer for consumer Laravel projects:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/EliteDevSquad/sidecar-laravel/main/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/EliteDevSquad/sidecar-laravel/3.x/install.sh)
 ```
 
 ### What it does

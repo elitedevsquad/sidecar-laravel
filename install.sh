@@ -31,11 +31,16 @@ info()  { echo -e "  $1"; }
 if [[ -n "${SIDECAR_PROJECT_ROOT:-}" ]]; then
     PROJECT_ROOT="$SIDECAR_PROJECT_ROOT"
 else
-    if [[ -n "${BASH_SOURCE[0]:-}" && "${BASH_SOURCE[0]}" != "bash" ]]; then
-        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # Detect if running via bash <(curl ...) — BASH_SOURCE[0] is a file descriptor
+    # path like /dev/fd/63 or /proc/self/fd/63, not a real script path.
+    # In that case (and when piped), fall back to PWD.
+    _src="${BASH_SOURCE[0]:-}"
+    if [[ -n "$_src" && "$_src" != "bash" && "$_src" != /dev/fd/* && "$_src" != /proc/self/fd/* && -f "$_src" ]]; then
+        SCRIPT_DIR="$(cd "$(dirname "$_src")" && pwd)"
     else
         SCRIPT_DIR="$PWD"
     fi
+    unset _src
 
     PROJECT_ROOT="$SCRIPT_DIR"
     while [[ "$PROJECT_ROOT" != "/" ]]; do
