@@ -1,6 +1,6 @@
 export class Sidecar {
-    constructor(baseUrl = "") {
-        this.baseUrl = baseUrl.replace(/\/$/, "");
+    constructor() {
+        this.baseUrl = window.__sidecarBaseUrl.replace(/\/$/, "");
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
         this.consoleShown = false;
         this.init();
@@ -121,4 +121,4 @@ export class Sidecar {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => new Sidecar(window.__sidecarBaseUrl ?? ""));
+document.addEventListener("DOMContentLoaded", () => new Sidecar());
