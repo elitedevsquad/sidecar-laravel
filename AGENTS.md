@@ -7,7 +7,7 @@ This document provides guidelines for agentic coding assistants working on the s
 **DevSquad Sidecar** is a Laravel library that enables developers and QA to test Laravel applications directly from the browser. It provides utilities for executing Tinker code, artisan commands, manipulating the fake clock, and impersonating users—all from a browser UI.
 
 - **Language**: PHP 8.2+
-- **Framework**: Laravel 11+, 12+
+- **Framework**: Laravel 11+
 - **Type**: Composer library
 - **Testing Framework**: Pest + PHPUnit
 - **Code Quality**: PHPStan (Level 10), Pint (Laravel preset)
@@ -49,7 +49,7 @@ composer install
 
 - **Preset**: Laravel Pint preset with custom rules (see pint.json)
 - **Line Length**: Follow PSR-12 standards
-- **Imports**: 
+- **Imports**:
   - Group imports by category (use statements)
   - Use a single import per statement disabled (multiple imports on one line is allowed)
   - Remove unused imports automatically (`no_unused_imports: true`)
@@ -93,7 +93,7 @@ composer install
   - Public methods and properties
   - Complex logic requires explanation
   - Return types, especially arrays with specific keys
-  
+
 - **Example**:
 ```php
 /**
@@ -155,6 +155,32 @@ tests/
 3. **Controller Actions**: One-action controllers for clear single responsibilities
 4. **Request Validation**: Form request classes for input validation
 5. **Resources**: API resource classes for response formatting
+6. **Auto-inject Assets**: The `SidecarInjectJsMiddleware` injects the Sidecar JS bundle before `</body>` on every non-production HTML response. Controlled by `auto_inject_assets` in config (env: `DS_SIDECAR_AUTO_INJECT_ASSETS`). Set to `false` for external frontends (Next.js, Nuxt) that load the script manually.
+7. **JS Bundle**: Pre-built IIFE at `dist/sidecar.js`, committed to the repo. Served via `GET /__devsquad-sidecar/assets/js`. Consumers do not run `npm run build`. Run it inside the package repo when `resources/js/index.js` changes.
+8. **`window.__sidecarBaseUrl`**: Runtime variable read by the bundle on `DOMContentLoaded` to prefix all API requests. Used by external frontends since the bundle is built inside the package — consumer env vars are not available at package build time.
+
+## install.sh
+
+One-command installer for consumer Laravel projects:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/elitedevsquad/sidecar-laravel/3.x/install.sh)
+```
+
+### What it does
+
+1. Detects the Laravel project root by walking up from `PWD` until `artisan` is found (works when piped via `curl`)
+2. Runs `composer require elitedevsquad/sidecar-laravel --dev`
+3. Publishes `config/devsquad-sidecar.php` via `artisan vendor:publish`
+4. Writes all `.env` variables (auto-detects APP_URL, mail server, git remote, current branch)
+5. Mirrors every key into `.env.example` with placeholder values — adds a `# DevSquad Sidecar` header once
+6. Injects `<meta name="csrf-token" content="{{ csrf_token() }}">` into blade files that look like full layouts (`<html>`, `<body>`, `<meta>` all present) — skips any file whose path segment or filename is exactly `mail`, `mails`, `email`, or `emails`
+
+### Helper functions
+
+- `env_set KEY VALUE EXAMPLE_VALUE` — writes to `.env` (add/update) and to `.env.example` (add only)
+- `env_ensure KEY VALUE EXAMPLE_VALUE` — same but only writes to `.env` if the key is absent
+- `example_ensure KEY VALUE` — adds to `.env.example` only if the key is absent
 
 ## Before Submitting Changes
 
@@ -164,6 +190,7 @@ tests/
 4. Check no debug code remains with `composer test:debug`
 5. Ensure types pass with `composer test:types`
 6. Verify linting passes with `composer test:lint`
+7. If `resources/js/index.js` changed, run `npm run build` and commit `dist/sidecar.js`
 
 ## Common Tasks
 
@@ -184,3 +211,10 @@ tests/
 4. Add comprehensive docblock
 5. Test with minimum 95% coverage
 6. Document in this file if it's a significant architectural addition
+
+### Add a New Config Key
+
+1. Add the key to `resources/config/devsquad-sidecar.php` with an `env()` call and sensible default
+2. Add the corresponding `DS_SIDECAR_*` variable to `install.sh` using `env_ensure` (with example placeholder)
+3. Reference the key via `config('devsquad-sidecar.your_key')` in the relevant middleware or controller
+4. Add or update tests covering the new behaviour

@@ -3,6 +3,9 @@
 return [
     'enabled' => env('DS_SIDECAR_ENABLED', true),
 
+    // Automatically inject the Sidecar JS before </body> on every HTML response
+    'auto_inject_assets' => env('DS_SIDECAR_AUTO_INJECT_ASSETS', true),
+
     // Allowed IPs to execute Sidecar features (comma-separated)
     'allowed_ips' => array_filter(array_map('trim', explode(',', env('DS_SIDECAR_ALLOWED_IPS', '127.0.0.1')))),
 

@@ -1,8 +1,25 @@
 export class Sidecar {
     constructor() {
+        this.baseUrl = this._resolveBaseUrl();
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
-        this.init();
         this.consoleShown = false;
+        this.init();
+    }
+
+    _resolveBaseUrl() {
+        if (window.__sidecarBaseUrl) {
+            return window.__sidecarBaseUrl.replace(/\/$/, "");
+        }
+
+        const scriptTag = document.querySelector('script[src*="__devsquad-sidecar"]');
+        if (scriptTag) {
+            try {
+                const url = new URL(scriptTag.src);
+                return url.origin;
+            } catch (_) {}
+        }
+
+        return window.location.origin;
     }
 
     async init() {
@@ -12,7 +29,7 @@ export class Sidecar {
 
     async request(endpoint, options = {}) {
         try {
-            const response = await fetch(endpoint, {
+            const response = await fetch(this.baseUrl + endpoint, {
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json",
@@ -75,7 +92,7 @@ export class Sidecar {
 
         window.addEventListener("sidecar:to:page::refresh", async () => {
             await this.fetchInitialData();
-        })
+        });
 
         const commandEndpoints = {
             "sidecar:to:page:executeCommand": ["/__devsquad-sidecar/execute-command", "sidecar:to:extension:commandOutput"],
@@ -108,8 +125,8 @@ export class Sidecar {
             body: JSON.stringify(payload),
         });
 
-        if(data.error) {
-            console.warn('Sidecar: ', data)
+        if (data.error) {
+            console.warn('Sidecar: ', data);
         }
 
         this.dispatch(outputEvent, data.output ?? data.error.message);
@@ -119,3 +136,5 @@ export class Sidecar {
         window.dispatchEvent(new CustomEvent(event, { detail }));
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => new Sidecar());

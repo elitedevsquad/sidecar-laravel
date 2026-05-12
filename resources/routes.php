@@ -4,12 +4,14 @@ use EliteDevSquad\SidecarLaravel\Http\Controllers\{ClearUserCacheController,
     ExecuteFakeClockController,
     ExecuteTinkerController,
     GetSidecarDataController,
-    LoginAsUserController};
+    LoginAsUserController,
+    SidecarJsController};
 use EliteDevSquad\SidecarLaravel\Http\Controllers\{ExecuteCommandController, ExecuteTinkerOnQueueController};
 use Illuminate\Support\Facades\Route;
 
 if (! app()->isProduction()) {
     Route::prefix('__devsquad-sidecar')->middleware(['web'])->group(function () {
+        Route::get('/assets/js', SidecarJsController::class);
         Route::get('/data', GetSidecarDataController::class);
         Route::post('/login-as', LoginAsUserController::class);
 
