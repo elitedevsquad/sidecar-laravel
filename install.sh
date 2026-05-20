@@ -75,7 +75,7 @@ _ensure_header() {
 }
 
 env_get() {
-    grep -E "^${1}=" "$ENV_FILE" 2>/dev/null | head -1 | cut -d'=' -f2- | tr -d '"' | tr -d "'"
+    grep -E "^${1}=" "$ENV_FILE" 2>/dev/null | head -1 | cut -d'=' -f2- | tr -d '"' | tr -d "'" || true
 }
 
 env_has() {
@@ -132,10 +132,15 @@ step "Installing composer package"
 cd "$PROJECT_ROOT"
 
 if composer show elitedevsquad/sidecar-laravel &>/dev/null; then
-    ok "Package already present in vendor — skipping"
+    info "Package already present — updating to latest version"
+    if composer require elitedevsquad/sidecar-laravel -W; then
+        ok "Package updated"
+    else
+        warn "Update failed (likely due to dependency conflicts). Continuing with existing version..."
+    fi
 else
-    info "Running: composer require elitedevsquad/sidecar-laravel --dev"
-    composer require elitedevsquad/sidecar-laravel --dev
+    info "Running: composer require elitedevsquad/sidecar-laravel"
+    composer require elitedevsquad/sidecar-laravel
     ok "Package installed"
 fi
 
@@ -146,9 +151,44 @@ fi
 step "Publishing config"
 
 CONFIG_FILE="$PROJECT_ROOT/config/devsquad-sidecar.php"
+VENDOR_CONFIG="vendor/elitedevsquad/sidecar-laravel/resources/config/devsquad-sidecar.php"
 
 if [[ -f "$CONFIG_FILE" ]]; then
-    warn "config/devsquad-sidecar.php already exists — skipping"
+    info "config/devsquad-sidecar.php already exists — checking for missing keys"
+
+    # Identify missing top-level keys using PHP
+    MISSING_KEYS=$(php -r "
+        if (!file_exists('$VENDOR_CONFIG')) exit;
+        if (!function_exists('env')) { function env(\$k, \$d = null) { return \$d; } }
+        if (!function_exists('config')) { function config(\$k = null, \$d = null) { return \$d; } }
+        \$vendor = include '$VENDOR_CONFIG';
+        \$user = include '$CONFIG_FILE';
+        \$missing = array_diff_key(\$vendor, \$user);
+        if (!empty(\$missing)) {
+            echo implode(',', array_keys(\$missing));
+        }
+    " 2>/dev/null || echo "")
+
+    if [[ -n "$MISSING_KEYS" ]]; then
+        warn "Adding missing keys to config/devsquad-sidecar.php"
+        for KEY in ${MISSING_KEYS//,/ }; do
+            # Extract the line from vendor config (handling simple key => value lines)
+            LINE=$(grep -E "'$KEY'\s*=>" "$VENDOR_CONFIG" 2>/dev/null | head -n 1 | sed -e 's/^[[:space:]]*//' -e 's/,[[:space:]]*$//' || true)
+            if [[ -n "$LINE" ]]; then
+                # Append before the last ];
+                if [[ "$OSTYPE" == "darwin"* ]]; then
+                    sed -i '' "s|];|    $LINE,\n];|" "$CONFIG_FILE"
+                else
+                    sed -i "s|];|    $LINE,\n];|" "$CONFIG_FILE"
+                fi
+                ok "Added: $KEY"
+            else
+                warn "Could not automatically add '$KEY'. Please check $VENDOR_CONFIG"
+            fi
+        done
+    else
+        ok "Configuration is up to date"
+    fi
 else
     php artisan vendor:publish --tag="devsquad-sidecar" --quiet
     ok "Published config/devsquad-sidecar.php"

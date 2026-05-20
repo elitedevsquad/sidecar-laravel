@@ -73,7 +73,7 @@ DS_SIDECAR_ALLOWED_IPS="127.0.0.1,192.168.1.0/24,10.0.0"
 **`HEADER_BRANCH_NAME`** — on servers without git (e.g. Envoyer), inject via release hook:
 ```bash
 cd {{ release }}
-sed -i '' -e '/HEADER_BRANCH_NAME/d' .env
+sed -i '/HEADER_BRANCH_NAME/d' .env
 echo HEADER_BRANCH_NAME="{{ branch }}" >> .env
 ```
 
