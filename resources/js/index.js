@@ -42,7 +42,7 @@ export class Sidecar {
         const appTag = this.data.app_tag;
 
         let text = env;
-        if (format === 'branch_only') {
+        if (format === 'branch') {
             text = branch;
         } else if (format === 'env_branch') {
             text = `${env} \u00B7 ${branch}`;
