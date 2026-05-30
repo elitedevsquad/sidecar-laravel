@@ -25,6 +25,69 @@ export class Sidecar {
     async init() {
         await this.fetchInitialData(true);
         this.setupEventListeners();
+        this.injectBadge();
+    }
+
+    injectBadge() {
+        if (!this.data?.badge_fallback) return;
+        if (window.sidecarExtensionDetected) return;
+        if (document.getElementById('sidecar-badge')) return;
+
+        const stored = sessionStorage.getItem('sidecar_badge_dismissed');
+        if (stored === '1') return;
+
+        const env = this.data.environment || 'local';
+        const branch = this.data.branch || 'main';
+        const format = this.data.badge_fallback;
+        const appTag = this.data.app_tag;
+
+        let text = env;
+        if (format === 'branch_only') {
+            text = branch;
+        } else if (format === 'env_branch') {
+            text = `${env} \u00B7 ${branch}`;
+        } else if (env === 'staging' && appTag) {
+            text = `Tag: ${appTag}`;
+        }
+
+        const colors = {
+            staging: '#d70745',
+            sandbox: '#0849ec',
+            local: '#31b705'
+        };
+
+        const bgColor = colors[env] || colors.local;
+
+        const badge = document.createElement('div');
+        badge.id = 'sidecar-badge';
+        badge.innerText = text;
+
+        Object.assign(badge.style, {
+            position: 'fixed',
+            zIndex: '999999',
+            top: '12px',
+            left: '12px',
+            padding: '5px 12px',
+            background: bgColor,
+            color: '#fff',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            fontSize: '12px',
+            fontWeight: '600',
+            borderRadius: '16px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            opacity: '1',
+            transition: 'opacity 0.2s',
+            lineHeight: '1'
+        });
+
+        badge.addEventListener('click', () => {
+            badge.style.opacity = '0';
+            badge.style.pointerEvents = 'none';
+            sessionStorage.setItem('sidecar_badge_dismissed', '1');
+        });
+
+        document.body.appendChild(badge);
     }
 
     async request(endpoint, options = {}) {
@@ -81,6 +144,7 @@ export class Sidecar {
             this.consoleShown = true;
         }
 
+        this.data = data;
         this.dispatch("sidecar:to:extension:data", data);
     }
 
