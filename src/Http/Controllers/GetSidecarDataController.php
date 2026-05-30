@@ -40,6 +40,8 @@ class GetSidecarDataController
             'authenticated' => true,
             'current_user' => Cache::rememberForever('sidecar_current_user', fn () => Auth::id()),
             'branch' => $this->getBranch(),
+            'app_tag' => $this->getAppTag(),
+            'badge_fallback' => config('devsquad-sidecar.badge_fallback'),
             'database' => $database,
             'environment' => app()->environment(),
             'users' => $users,
@@ -71,6 +73,17 @@ class GetSidecarDataController
         $branch = config('devsquad-sidecar.branch_name');
 
         return trim($branch ?: shell_exec('git branch --show-current') ?: '');
+    }
+
+    private function getAppTag(): ?string
+    {
+        try {
+            $tag = shell_exec('git describe --tags --abbrev=0 2>/dev/null');
+
+            return $tag ? trim($tag) : null;
+        } catch (\Exception) {
+            return null;
+        }
     }
 
     private function getPackageVersion(): string
