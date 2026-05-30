@@ -23,6 +23,21 @@ The script handles everything automatically:
 
 After running, complete the **User Mapping** step below.
 
+### Manual Setup
+
+If you prefer not to use the install script:
+
+```bash
+composer require elitedevsquad/sidecar-laravel --dev
+php artisan vendor:publish --tag="devsquad-sidecar"
+```
+
+Then add the env variables below, configure user mapping, and ensure the CSRF meta tag is in your main layout:
+
+```html
+<meta name="csrf-token" content="{{ csrf_token() }}">
+```
+
 ---
 
 ## User Mapping
@@ -81,7 +96,33 @@ echo HEADER_BRANCH_NAME="{{ branch }}" >> .env
 
 ## Frontend
 
-**Laravel apps:** no action needed. The Sidecar JS is injected automatically before `</body>` on every non-production HTML response.
+**Laravel apps (auto-inject enabled):** no action needed. The Sidecar JS is injected automatically before `</body>` on every non-production HTML response.
+
+**Laravel apps with Vite (auto-inject disabled):** if you set `DS_SIDECAR_AUTO_INJECT_ASSETS=false` in your `.env`, load Sidecar manually in your JavaScript entry point:
+
+```bash
+touch resources/js/devsquad-sidecar.js
+```
+
+```javascript
+// resources/js/devsquad-sidecar.js
+import { Sidecar } from "../../vendor/elitedevsquad/sidecar-laravel/resources/js/index.js";
+
+if (import.meta.env.VITE_DS_SIDECAR_ENABLED === "true") {
+    document.addEventListener("DOMContentLoaded", () => new Sidecar());
+}
+```
+
+```javascript
+// resources/js/app.js
+import "./devsquad-sidecar";
+```
+
+Then build your assets:
+
+```bash
+npm run build
+```
 
 **External apps (Next.js, Nuxt, etc.):** the bundle is served by the Laravel route `GET /__devsquad-sidecar/assets/js` and reads `window.__sidecarBaseUrl` at runtime to prefix all API calls.
 
@@ -94,21 +135,4 @@ if (process.env.NODE_ENV !== 'production') {
     s.defer = true;
     document.head.appendChild(s);
 }
-```
-
----
-
-## Manual Setup
-
-If you prefer not to use the install script:
-
-```bash
-composer require elitedevsquad/sidecar-laravel --dev
-php artisan vendor:publish --tag="devsquad-sidecar"
-```
-
-Then add the env variables above, configure user mapping, and ensure the CSRF meta tag is in your main layout:
-
-```html
-<meta name="csrf-token" content="{{ csrf_token() }}">
 ```
