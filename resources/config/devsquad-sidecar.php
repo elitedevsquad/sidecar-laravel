@@ -144,7 +144,12 @@ return [
     |--------------------------------------------------------------------------
     |
     | Fallback badge for browsers without the Chrome extension (Safari/Mobile).
-    | Options: "branch", "env_branch".
+    |
+    | Options:
+    |   - "environment" : Shows the environment name (local, staging, sandbox)
+    |   - "branch"      : Shows the current git branch name
+    |   - "env_branch"  : Shows environment + branch (e.g., "local · main")
+    |   - "show_tag"    : Shows the deploy tag on staging environments
     |
     */
 

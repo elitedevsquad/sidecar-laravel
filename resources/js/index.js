@@ -46,7 +46,7 @@ export class Sidecar {
             text = branch;
         } else if (format === 'env_branch') {
             text = `${env} \u00B7 ${branch}`;
-        } else if (env === 'staging' && appTag) {
+        } else if (format === 'show_tag' && appTag) {
             text = `Tag: ${appTag}`;
         }
 
