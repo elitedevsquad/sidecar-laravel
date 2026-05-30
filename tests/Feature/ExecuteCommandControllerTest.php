@@ -33,6 +33,7 @@ it('change clock when clock input is provided', function () {
 });
 
 it('does not change clock when clock input is not provided', function () {
+    $this->freezeTime();
     $originalTime = now()->toDateTimeString();
 
     postJson('__devsquad-sidecar/execute-command', [
