@@ -31,9 +31,9 @@ export class Sidecar {
     injectBadge() {
         if (!this.data?.badge_fallback) return;
 
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const hasExtension = document.getElementById('devsquad-env-badge');
 
-        if (!isSafari && window.sidecarExtensionDetected) return;
+        if (hasExtension) return;
 
         if (document.getElementById('sidecar-badge')) return;
 
