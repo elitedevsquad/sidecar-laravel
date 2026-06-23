@@ -1,0 +1,7 @@
+minimumReleaseAge: 1440
+trustPolicy: no-downgrade
+blockExoticSubdeps: true
+minimumReleaseAgeExclude:
+    - '@types/*'
+allowBuilds:
+    esbuild: true
