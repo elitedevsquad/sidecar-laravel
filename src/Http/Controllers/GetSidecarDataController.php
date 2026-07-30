@@ -3,8 +3,8 @@
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use Composer\InstalledVersions;
+use EliteDevSquad\SidecarLaravel\{FakeClock, Sidecar};
 use EliteDevSquad\SidecarLaravel\Http\Resources\SidecarUserResource;
-use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{Auth, Cache, Http};
 
@@ -48,7 +48,7 @@ class GetSidecarDataController
             'links' => config('devsquad-sidecar.links', []),
             'commands' => config('devsquad-sidecar.commands', []),
             'branch_url' => $branchUrl,
-            'fake_clock' => session('sidecar_fake_clock'),
+            'fake_clock' => FakeClock::current()?->format('Y-m-d H:i:s'),
             'version' => $this->getPackageVersion(),
             'package_updated' => $this->isPackageUpdated() ? 'Yes' : 'No',
             'datetime' => now(),

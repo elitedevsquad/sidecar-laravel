@@ -1,11 +1,14 @@
 <?php
 
+use EliteDevSquad\SidecarLaravel\FakeClock;
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 use function Pest\Laravel\{postJson, withoutMiddleware};
 
 beforeEach(function () {
+    Cache::flush();
     Carbon::setTestNow();
     withoutMiddleware(SidecarMiddleware::class);
 });
@@ -19,9 +22,9 @@ it('executes a valid artisan command', function () {
 });
 
 it('change clock when clock input is provided', function () {
-    $newTime = now()->addDays(2)->toDateTimeString();
+    $target = now()->addDays(2);
 
-    session(['sidecar_fake_clock' => $newTime]);
+    FakeClock::set($target);
 
     postJson('__devsquad-sidecar/execute-command', [
         'command' => 'view:clear',
@@ -29,12 +32,11 @@ it('change clock when clock input is provided', function () {
         ->assertOk()
         ->assertContent('{"output":"\n   INFO  Compiled views cleared successfully.  \n\n"}');
 
-    expect(now()->toDateTimeString())->toBe($newTime);
+    expect(now()->timestamp)->toEqualWithDelta($target->timestamp, 2);
 });
 
 it('does not change clock when clock input is not provided', function () {
-    $this->freezeTime();
-    $originalTime = now()->toDateTimeString();
+    $originalTime = now()->timestamp;
 
     postJson('__devsquad-sidecar/execute-command', [
         'command' => 'view:clear',
@@ -42,7 +44,10 @@ it('does not change clock when clock input is not provided', function () {
         ->assertOk()
         ->assertContent('{"output":"\n   INFO  Compiled views cleared successfully.  \n\n"}');
 
-    expect(now()->toDateTimeString())->toBe($originalTime);
+    expect(Carbon::hasTestNow())
+        ->toBeFalse()
+        ->and(now()->timestamp)
+        ->toEqualWithDelta($originalTime, 2);
 });
 
 it('handles exception when executing artisan command', function () {

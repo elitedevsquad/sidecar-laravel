@@ -2,6 +2,7 @@
 
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
+use EliteDevSquad\SidecarLaravel\FakeClock;
 use EliteDevSquad\SidecarLaravel\Http\Requests\ExecuteFakeClockRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
@@ -16,16 +17,12 @@ class ExecuteFakeClockController
         $datetimeInput = $request->date('datetime');
 
         if ($datetimeInput) {
-            Carbon::setTestNow($datetimeInput);
-
-            session(['sidecar_fake_clock' => $datetimeInput->toDateTimeString()]);
+            FakeClock::set($datetimeInput);
 
             return response()->json(['output' => 'Fake clock set to '.$datetimeInput->toDateTimeString()]);
         }
 
-        Carbon::setTestNow();
-
-        session(['sidecar_fake_clock' => null]);
+        FakeClock::set(null);
 
         return response()->json(['output' => 'Fake clock reset to real time']);
     }

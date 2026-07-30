@@ -2,8 +2,8 @@
 
 namespace EliteDevSquad\SidecarLaravel\Providers;
 
+use EliteDevSquad\SidecarLaravel\{FakeClock, Sidecar};
 use EliteDevSquad\SidecarLaravel\Http\Middleware\{FakeClockMiddleware, SidecarInjectJsMiddleware, SidecarMiddleware};
-use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
@@ -30,8 +30,13 @@ class SidecarServiceProvider extends BaseServiceProvider
         $router->aliasMiddleware('devsquad-sidecar-auth', SidecarMiddleware::class);
 
         $kernel = $this->app->make(Kernel::class);
+
         $kernel->appendMiddlewareToGroup('web', FakeClockMiddleware::class);
         $kernel->appendMiddlewareToGroup('web', SidecarInjectJsMiddleware::class);
+
+        if ($this->app->runningInConsole()) {
+            FakeClock::applyFromCache();
+        }
     }
 
     public function register(): void
