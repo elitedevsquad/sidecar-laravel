@@ -136,3 +136,10 @@ if (process.env.NODE_ENV !== 'production') {
     document.head.appendChild(s);
 }
 ```
+
+**Fake Clock:**
+- Setting a clock anchors "now" at the chosen instant and **keeps ticking** in real time (it no longer freezes time).
+- Web requests are scoped to your **browser session**, so a clock you set never leaks to other users or guests — normal app pages keep real time for everyone else.
+- The clock is also mirrored to the shared **cache**, so **CLI processes** such as `php artisan schedule:run` pick it up. Each scheduler tick is a fresh process that re-reads the clock, so changing or resetting it takes effect without restarting anything.
+- It is disabled in production and can be toggled with `DS_SIDECAR_FAKE_CLOCK_ENABLED`.
+- Long-running processes (e.g. `queue:work`, Octane) capture the clock at boot; restart them to pick up a change.

@@ -76,7 +76,7 @@ jobs:
       - name: Install Dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel-version }}" --no-interaction --no-update
-          composer install
+          composer install --no-security-blocking
 
       - name: Pint - Code Style Fixer
         if: matrix.php-version == '8.3'

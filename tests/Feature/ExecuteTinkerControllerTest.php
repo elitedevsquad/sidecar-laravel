@@ -2,12 +2,15 @@
 
 namespace Tests\Feature;
 
+use EliteDevSquad\SidecarLaravel\FakeClock;
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 use function Pest\Laravel\{postJson, withoutMiddleware};
 
 beforeEach(function () {
+    Cache::flush();
     Carbon::setTestNow();
     withoutMiddleware(SidecarMiddleware::class);
 });
@@ -22,14 +25,14 @@ it('handles exception when executing tinker code', function () {
 });
 
 it('change clock when clock input is provided', function () {
-    $newTime = now()->addDays(2)->toDateTimeString();
+    $target = now()->addDays(2);
 
-    session(['sidecar_fake_clock' => $newTime]);
+    FakeClock::set($target);
 
     postJson('__devsquad-sidecar/execute-tinker', [
         'code' => base64_encode('now()'),
     ])
         ->assertOk();
 
-    expect(now()->toDateTimeString())->toBe($newTime);
+    expect(now()->timestamp)->toEqualWithDelta($target->timestamp, 2);
 });
