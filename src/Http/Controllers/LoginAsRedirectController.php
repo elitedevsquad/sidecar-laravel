@@ -21,6 +21,9 @@ readonly class LoginAsRedirectController
 
         Auth::loginUsingId($user);
 
+        $request->session()->regenerate();
+        $request->session()->regenerateToken();
+
         $redirect = $request->query('redirect');
 
         if (is_string($redirect) && $redirect !== '' && parse_url($redirect, PHP_URL_HOST) === $request->getHost()) {
