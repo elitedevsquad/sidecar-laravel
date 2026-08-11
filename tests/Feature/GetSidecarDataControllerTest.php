@@ -73,6 +73,30 @@ it('returns full JSON payload', function () {
     $response->assertJsonStructure(['version', 'package_updated']);
 });
 
+it('includes a signed login_url for each user', function () {
+    $this->sidecar->shouldReceive('getUserMap')->andReturn([
+        'id' => 'id',
+        'name' => 'name',
+        'email' => 'email',
+        'role' => 'admin',
+    ]);
+    $this->sidecar->shouldReceive('getUserQueryBuilder')->andReturn(User::query());
+
+    Config::set('devsquad-sidecar.enabled', true);
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    $response = getJson('__devsquad-sidecar/data')
+        ->assertOk()
+        ->assertJsonStructure([
+            'users' => [
+                ['id', 'name', 'email', 'role', 'login_url'],
+            ],
+        ]);
+
+    expect($response->json('users.0.login_url'))->toContain('__devsquad-sidecar/login-as/');
+});
+
 it('should replace userQuery with custom query', function () {
     $this->sidecar->shouldReceive('getUserMap')->andReturn([
         'id' => 'id',
