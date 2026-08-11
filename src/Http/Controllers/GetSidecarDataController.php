@@ -38,7 +38,7 @@ class GetSidecarDataController
             'enabled' => true,
             'project_name' => $projectName,
             'authenticated' => true,
-            'current_user' => Cache::rememberForever('sidecar_current_user', fn () => Auth::id()),
+            'current_user' => Auth::id(),
             'branch' => $this->getBranch(),
             'app_tag' => $this->getAppTag(),
             'badge_fallback' => config('devsquad-sidecar.badge_fallback'),

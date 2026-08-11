@@ -4,6 +4,7 @@ use EliteDevSquad\SidecarLaravel\Http\Controllers\{ClearUserCacheController,
     ExecuteFakeClockController,
     ExecuteTinkerController,
     GetSidecarDataController,
+    LoginAsRedirectController,
     LoginAsUserController,
     SidecarJsController};
 use EliteDevSquad\SidecarLaravel\Http\Controllers\{ExecuteCommandController, ExecuteTinkerOnQueueController};
@@ -14,6 +15,7 @@ if (! app()->isProduction()) {
         Route::get('/assets/js', SidecarJsController::class);
         Route::get('/data', GetSidecarDataController::class);
         Route::post('/login-as', LoginAsUserController::class);
+        Route::get('/login-as/{user}', LoginAsRedirectController::class)->name('devsquad-sidecar.login-as');
 
         Route::middleware('devsquad-sidecar-auth')->group(function () {
             Route::post('/execute-command', ExecuteCommandController::class);
