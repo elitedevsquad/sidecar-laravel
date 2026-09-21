@@ -35,7 +35,6 @@ it('returns full JSON payload', function () {
     Config::set('devsquad-sidecar.auth_token', 'test_token');
     Config::set('devsquad-sidecar.branch_name', 'main');
     Config::set('devsquad-sidecar.links', ['docs' => 'url']);
-    Config::set('devsquad-sidecar.commands', ['migrate']);
     Config::set('devsquad-sidecar.branch_url', 'http://repo/branch');
 
     Http::fake([
@@ -66,7 +65,7 @@ it('returns full JSON payload', function () {
         'links' => [
             'docs' => 'url',
         ],
-        'commands' => ['migrate'],
+        'commands_introspection' => true,
         'branch_url' => 'http://repo/branch',
     ]);
 
@@ -287,4 +286,26 @@ it('caches the GitHub update check result for one day', function () {
     getJson('__devsquad-sidecar/data?without_users=true')->assertOk()->assertJson(['package_updated' => 'No']);
 
     Http::assertSentCount(1);
+});
+
+it('includes environment health and session expiration', function () {
+    $this->sidecar->shouldReceive('getUserMap')->andReturn([
+        'id' => 'id',
+        'name' => 'name',
+        'email' => 'email',
+        'role' => 'admin',
+    ]);
+    $this->sidecar->shouldReceive('getUserQueryBuilder')->andReturn(User::query());
+
+    Config::set('devsquad-sidecar.enabled', true);
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    $response = getJson('__devsquad-sidecar/data')
+        ->assertOk()
+        ->assertJsonStructure([
+            'health' => ['log_errors', 'last_error_at', 'recent_logs', 'recent_errors', 'updated_at'],
+        ]);
+
+    expect($response->json('session_expires_at'))->not->toBeNull();
 });

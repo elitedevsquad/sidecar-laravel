@@ -7,7 +7,7 @@ use EliteDevSquad\SidecarLaravel\Http\Controllers\{ClearUserCacheController,
     LoginAsRedirectController,
     LoginAsUserController,
     SidecarJsController};
-use EliteDevSquad\SidecarLaravel\Http\Controllers\{ExecuteCommandController, ExecuteTinkerOnQueueController};
+use EliteDevSquad\SidecarLaravel\Http\Controllers\{ExecuteCommandController, ExecuteTinkerOnQueueController, ListCommandsController};
 use Illuminate\Support\Facades\Route;
 
 if (! app()->isProduction()) {
@@ -18,6 +18,7 @@ if (! app()->isProduction()) {
         Route::get('/login-as/{user}', LoginAsRedirectController::class)->name('devsquad-sidecar.login-as');
 
         Route::middleware('devsquad-sidecar-auth')->group(function () {
+            Route::get('/commands', ListCommandsController::class)->name('devsquad-sidecar.commands');
             Route::post('/execute-command', ExecuteCommandController::class);
             Route::post('/execute-tinker', ExecuteTinkerController::class);
             Route::post('/execute-fake-clock', ExecuteFakeClockController::class);

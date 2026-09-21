@@ -47,5 +47,8 @@ abstract class TestCase extends BaseTestCase
 
         $this->app->make(Kernel::class)
             ->registerCommand(new FakeTinkerCommand());
+
+        $this->app->make(Kernel::class)
+            ->registerCommand(new FakeCatalogCommand());
     }
 }

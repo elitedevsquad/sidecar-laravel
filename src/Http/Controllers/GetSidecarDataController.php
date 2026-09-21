@@ -3,14 +3,17 @@
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use Composer\InstalledVersions;
-use EliteDevSquad\SidecarLaravel\{FakeClock, Sidecar};
+use EliteDevSquad\SidecarLaravel\{FakeClock, Health, Sidecar};
 use EliteDevSquad\SidecarLaravel\Http\Resources\SidecarUserResource;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{Auth, Cache, Http};
 
 class GetSidecarDataController
 {
-    public function __construct(private readonly Sidecar $sidecar) {}
+    public function __construct(
+        private readonly Sidecar $sidecar,
+        private readonly Health $health,
+    ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -46,12 +49,12 @@ class GetSidecarDataController
             'environment' => app()->environment(),
             'users' => $users,
             'links' => config('devsquad-sidecar.links', []),
-            'commands' => config('devsquad-sidecar.commands', []),
+            'commands_introspection' => true,
             'branch_url' => $branchUrl,
             'fake_clock' => FakeClock::current()?->format('Y-m-d H:i:s'),
+            'health' => $this->health->toArray(),
             'version' => $this->getPackageVersion(),
             'package_updated' => $this->isPackageUpdated() ? 'Yes' : 'No',
-            'datetime' => now(),
         ]);
     }
 
