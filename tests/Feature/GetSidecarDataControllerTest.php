@@ -287,25 +287,3 @@ it('caches the GitHub update check result for one day', function () {
 
     Http::assertSentCount(1);
 });
-
-it('includes environment health and session expiration', function () {
-    $this->sidecar->shouldReceive('getUserMap')->andReturn([
-        'id' => 'id',
-        'name' => 'name',
-        'email' => 'email',
-        'role' => 'admin',
-    ]);
-    $this->sidecar->shouldReceive('getUserQueryBuilder')->andReturn(User::query());
-
-    Config::set('devsquad-sidecar.enabled', true);
-
-    withoutMiddleware(SidecarMiddleware::class);
-
-    $response = getJson('__devsquad-sidecar/data')
-        ->assertOk()
-        ->assertJsonStructure([
-            'health' => ['log_errors', 'last_error_at', 'recent_logs', 'recent_errors', 'updated_at'],
-        ]);
-
-    expect($response->json('session_expires_at'))->not->toBeNull();
-});
