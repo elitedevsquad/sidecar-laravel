@@ -49,6 +49,8 @@ class GetSidecarDataController
             'commands_introspection' => true,
             'branch_url' => $branchUrl,
             'fake_clock' => FakeClock::current()?->format('Y-m-d H:i:s'),
+            'fake_clock_offset' => FakeClock::offset(),
+            'timezone' => config('app.timezone'),
             'health_enabled' => (bool) config('devsquad-sidecar.health_enabled'),
             'version' => $this->getPackageVersion(),
             'package_updated' => $this->isPackageUpdated() ? 'Yes' : 'No',

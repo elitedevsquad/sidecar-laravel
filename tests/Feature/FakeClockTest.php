@@ -111,3 +111,22 @@ it('does nothing when the feature is disabled', function () {
         ->and(FakeClock::current())
         ->toBeNull();
 });
+
+it('reports the session offset in seconds', function () {
+    expect(FakeClock::offset())->toBeNull();
+
+    FakeClock::set(Carbon::now()->addDays(3));
+
+    expect(FakeClock::offset())->toEqualWithDelta(3 * 86400, 2);
+
+    FakeClock::set(null);
+
+    expect(FakeClock::offset())->toBeNull();
+});
+
+it('reports no offset when the feature is disabled', function () {
+    session([FakeClock::KEY => 3600]);
+    config(['devsquad-sidecar.fake_clock_enabled' => false]);
+
+    expect(FakeClock::offset())->toBeNull();
+});

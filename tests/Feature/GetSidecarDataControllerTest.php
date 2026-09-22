@@ -71,7 +71,7 @@ it('returns full JSON payload', function () {
         'branch_url' => 'http://repo/branch',
     ]);
 
-    $response->assertJsonStructure(['version', 'package_updated'])
+    $response->assertJsonStructure(['version', 'package_updated', 'fake_clock_offset', 'timezone'])
         ->assertJsonMissingPath('health');
 });
 

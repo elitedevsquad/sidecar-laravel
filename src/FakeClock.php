@@ -53,6 +53,17 @@ class FakeClock
         self::applyOffset(Cache::get(self::KEY));
     }
 
+    public static function offset(): ?int
+    {
+        if (! self::isEnabled()) {
+            return null;
+        }
+
+        $offset = session(self::KEY);
+
+        return is_numeric($offset) ? (int) $offset : null;
+    }
+
     public static function current(): ?CarbonInterface
     {
         return Carbon::hasTestNow() ? Carbon::now() : null;
