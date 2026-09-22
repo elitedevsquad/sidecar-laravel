@@ -39,7 +39,9 @@ class SidecarInjectJsMiddleware
             return $response;
         }
 
-        $script = '<script src="/__devsquad-sidecar/assets/js" defer></script>';
+        $version = @filemtime(__DIR__.'/../../../dist/sidecar.js') ?: '';
+
+        $script = '<script src="/__devsquad-sidecar/assets/js?v='.$version.'" defer></script>';
 
         $response->setContent(str_replace('</body>', $script.'</body>', $content));
 

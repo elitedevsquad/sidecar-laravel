@@ -1,7 +1,6 @@
 <?php
 
 use EliteDevSquad\SidecarLaravel\Health;
-use Illuminate\Support\Facades\Config;
 
 function writeLog(string $contents): string
 {
@@ -26,15 +25,7 @@ afterEach(function () {
     }
 });
 
-it('returns null when health is disabled', function () {
-    Config::set('devsquad-sidecar.health_enabled', false);
-
-    expect((new Health())->toArray())->toBeNull();
-});
-
 it('returns log errors and the newest recent lines', function () {
-    Config::set('devsquad-sidecar.health_enabled', true);
-
     $now = now()->format('Y-m-d H:i:s');
 
     writeLog(<<<LOG
@@ -46,8 +37,7 @@ it('returns log errors and the newest recent lines', function () {
 
     $health = (new Health())->toArray();
 
-    expect($health)->not->toBeNull()
-        ->and($health)->not->toHaveKey('queued_jobs')
+    expect($health)->not->toHaveKey('queued_jobs')
         ->and($health)->not->toHaveKey('failed_jobs')
         ->and($health['log_errors'])->toBe(2)
         ->and($health['last_error_at'])->not->toBeNull()
@@ -60,8 +50,6 @@ it('returns log errors and the newest recent lines', function () {
 });
 
 it('returns at most the ten most recent errors, newest first', function () {
-    Config::set('devsquad-sidecar.health_enabled', true);
-
     $now = now()->format('Y-m-d H:i:s');
     $lines = [];
 
@@ -80,8 +68,6 @@ it('returns at most the ten most recent errors, newest first', function () {
 });
 
 it('returns null log errors when there is no log file', function () {
-    Config::set('devsquad-sidecar.health_enabled', true);
-
     $file = storage_path('logs/laravel.log');
 
     if (file_exists($file)) {
@@ -96,8 +82,6 @@ it('returns null log errors when there is no log file', function () {
 });
 
 it('truncates long log messages', function () {
-    Config::set('devsquad-sidecar.health_enabled', true);
-
     $now = now()->format('Y-m-d H:i:s');
     $long = str_repeat('a', 500);
 
@@ -110,8 +94,6 @@ it('truncates long log messages', function () {
 });
 
 it('ignores log lines with an unparseable timestamp', function () {
-    Config::set('devsquad-sidecar.health_enabled', true);
-
     writeLog("[not a date] local.ERROR: broken line\n");
 
     $health = (new Health())->toArray();

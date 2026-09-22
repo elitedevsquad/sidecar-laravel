@@ -29,7 +29,7 @@ it('injects the sidecar script tag with src before </body>', function () {
     $response = runMiddleware(makeHtmlResponse());
 
     expect($response->getContent())
-        ->toContain('<script src="/__devsquad-sidecar/assets/js"')
+        ->toMatch('#<script src="/__devsquad-sidecar/assets/js\?v=\d+" defer>#')
         ->toContain('</script></body>');
 });
 

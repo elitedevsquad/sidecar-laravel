@@ -13,21 +13,16 @@ class Health
     private const MESSAGE_LIMIT = 400;
 
     /**
-     * @return array{log_errors: int|null, last_error_at: string|null, recent_logs: list<array{at: string, level: string, message: string}>, recent_errors: list<array{at: string, level: string, message: string}>, updated_at: string}|null
+     * @return array{log_errors: int|null, last_error_at: string|null, recent_logs: list<array{at: string, level: string, message: string}>, updated_at: string}
      */
-    public function toArray(): ?array
+    public function toArray(): array
     {
-        if (! config('devsquad-sidecar.health_enabled')) {
-            return null;
-        }
-
         $log = $this->logErrors();
 
         return [
             'log_errors' => $log['count'],
             'last_error_at' => $log['last_error_at'],
             'recent_logs' => $log['recent'],
-            'recent_errors' => $log['recent'],
             'updated_at' => CarbonImmutable::now()->toIso8601String(),
         ];
     }

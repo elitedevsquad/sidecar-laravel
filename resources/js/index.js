@@ -164,6 +164,10 @@ export class Sidecar {
             await this.handleListCommands();
         });
 
+        window.addEventListener("sidecar:to:page:fetchLogs", async () => {
+            await this.handleFetchLogs();
+        });
+
         const commandEndpoints = {
             "sidecar:to:page:executeCommand": ["/__devsquad-sidecar/execute-command", "sidecar:to:extension:commandOutput"],
             "sidecar:to:page:executeTinker": ["/__devsquad-sidecar/execute-tinker", "sidecar:to:extension:tinkerOutput"],
@@ -197,6 +201,14 @@ export class Sidecar {
             generatedAt: data.generated_at ?? null,
             error: data.commands ? null : (data.error?.message ?? "Could not read the command list."),
         });
+    }
+
+    async handleFetchLogs() {
+        const data = await this.request("/__devsquad-sidecar/logs");
+
+        this.dispatch("sidecar:to:extension:logs", data.error
+            ? { error: data.error.message ?? String(data.error) }
+            : data);
     }
 
     async handleCommand(endpoint, payload, outputEvent) {
