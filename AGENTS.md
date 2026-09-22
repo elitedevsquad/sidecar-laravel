@@ -14,34 +14,7 @@ This document provides guidelines for agentic coding assistants working on the s
 
 ## Build, Lint, and Test Commands
 
-### Quick Reference
-
-```bash
-# Fix code style issues
-composer fix
-
-# Run all tests
-composer test
-
-# Run individual test suites
-composer test:unit      # Run unit/feature tests with 95% minimum coverage
-composer test:lint      # Run Pint linter check
-composer test:types     # Run PHPStan static analysis
-composer test:debug     # Check for debugging code (dump, dd)
-
-# Run a single test
-./vendor/bin/pest tests/Feature/ExecuteTinkerControllerTest.php
-./vendor/bin/pest tests/Feature/ExecuteTinkerControllerTest.php --filter="handles exception"
-
-# Run tests with coverage report
-./vendor/bin/pest --coverage --min=95
-```
-
-### Installing Dependencies
-
-```bash
-composer install
-```
+See the "Commands" section of `CLAUDE.md` — single source for the composer/pest/pnpm commands, the CI matrix and the `dist/sidecar.js` build rule. Dependencies: `composer install` and `pnpm install`.
 
 ## Code Style Guidelines
 
@@ -156,7 +129,7 @@ tests/
 4. **Request Validation**: Form request classes for input validation
 5. **Resources**: API resource classes for response formatting
 6. **Auto-inject Assets**: The `SidecarInjectJsMiddleware` injects the Sidecar JS bundle before `</body>` on every non-production HTML response. Controlled by `auto_inject_assets` in config (env: `DS_SIDECAR_AUTO_INJECT_ASSETS`). Set to `false` for external frontends (Next.js, Nuxt) that load the script manually.
-7. **JS Bundle**: Pre-built IIFE at `dist/sidecar.js`, committed to the repo. Served via `GET /__devsquad-sidecar/assets/js`. Consumers do not run `npm run build`. Run it inside the package repo when `resources/js/index.js` changes.
+7. **JS Bundle**: Pre-built IIFE at `dist/sidecar.js`, committed to the repo. Served via `GET /__devsquad-sidecar/assets/js`. Consumers do not build it. Run `pnpm build` inside the package repo when `resources/js/index.js` changes.
 8. **`window.__sidecarBaseUrl`**: Runtime variable read by the bundle on `DOMContentLoaded` to prefix all API requests. Used by external frontends since the bundle is built inside the package — consumer env vars are not available at package build time.
 
 ## install.sh
@@ -184,13 +157,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/elitedevsquad/sidecar-larave
 
 ## Before Submitting Changes
 
-1. Run `composer fix` to auto-format code
-2. Run `composer test` to ensure all checks pass
-3. Verify coverage is ≥95% with `composer test:unit`
-4. Check no debug code remains with `composer test:debug`
-5. Ensure types pass with `composer test:types`
-6. Verify linting passes with `composer test:lint`
-7. If `resources/js/index.js` changed, run `npm run build` and commit `dist/sidecar.js`
+1. `composer fix`, then `composer test` — both must pass (coverage gate is ≥95%)
+2. If `resources/js/index.js` changed, `pnpm build` and commit `dist/sidecar.js`
 
 ## Common Tasks
 

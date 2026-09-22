@@ -4,104 +4,69 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Sidecar Enabled
+    | Access
     |--------------------------------------------------------------------------
-    |
-    | This option determines whether Sidecar is enabled for the application.
-    |
     */
 
+    // Master switch. The routes are skipped in production regardless.
     'enabled' => env('DS_SIDECAR_ENABLED', true),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Auto Inject Assets
-    |--------------------------------------------------------------------------
-    |
-    | Automatically inject the Sidecar JS before </body> on every HTML response.
-    |
-    */
-
+    // Inject the Sidecar script into HTML responses automatically.
     'auto_inject_assets' => env('DS_SIDECAR_AUTO_INJECT_ASSETS', true),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Allowed IPs
-    |--------------------------------------------------------------------------
-    |
-    | The IP addresses that are allowed to access Sidecar features. Multiple
-    | IPs can be specified as a comma-separated string in the environment.
-    |
-    */
-
+    // IPs allowed to execute anything. Empty means nobody, not everybody.
     'allowed_ips' => array_filter(array_map('trim', explode(',', env('DS_SIDECAR_ALLOWED_IPS', '127.0.0.1')))),
 
     /*
     |--------------------------------------------------------------------------
-    | Commands Enabled
+    | Features
     |--------------------------------------------------------------------------
-    |
-    | Enable or disable Artisan command execution from the Sidecar panel.
-    |
     */
 
     'commands_enabled' => env('DS_SIDECAR_COMMANDS_ENABLED', true),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Tinker Enabled
-    |--------------------------------------------------------------------------
-    |
-    | Enable or disable Tinker functionality from the Sidecar panel.
-    |
-    */
-
     'tinker_enabled' => env('DS_SIDECAR_TINKER_ENABLED', true),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Tinker Use Batch
-    |--------------------------------------------------------------------------
-    |
-    | Run Tinker queued jobs using batch mode.
-    |
-    */
-
+    // Run queued Tinker snippets as a batch.
     'tinker_use_batch' => env('DS_SIDECAR_TINKER_USE_BATCH', true),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Fake Clock Enabled
-    |--------------------------------------------------------------------------
-    |
-    | Enable or disable the Fake Clock feature from the Sidecar panel.
-    |
-    */
 
     'fake_clock_enabled' => env('DS_SIDECAR_FAKE_CLOCK_ENABLED', true),
 
+    'health_enabled' => env('DS_SIDECAR_HEALTH_ENABLED', true),
+
+    // How far back to count errors in the log.
+    'health_log_window_hours' => env('DS_SIDECAR_HEALTH_LOG_WINDOW_HOURS', 24),
+
     /*
     |--------------------------------------------------------------------------
-    | Custom Links
+    | Commands
     |--------------------------------------------------------------------------
     |
-    | Custom links displayed in the Sidecar panel. Each link should have a
-    | "name" and "url" key.
+    | The panel lists the application's own Artisan commands, read from the
+    | console kernel; framework and package commands are already excluded.
     |
     */
 
+    'blocked_commands' => [
+        // 'App\\Console\\Commands\\Deprecated\\*',
+        // 'db:wipe',
+    ],
+
+    // Seconds a command may run. It runs as a subprocess, so the web server's
+    // own request timeout does not apply.
+    'command_timeout' => env('DS_SIDECAR_COMMAND_TIMEOUT', 120),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Panel
+    |--------------------------------------------------------------------------
+    */
+
+    // Shortcuts shown in the panel. Each needs a "name" and a "url".
     'links' => [
         [
             'name' => 'Admin',
             'url' => config('app.url').'/admin',
-        ],
-        [
-            'name' => 'Mail',
-            'url' => env('DS_SIDECAR_LINK_MAIL', ''),
-        ],
-        [
-            'name' => 'Envoyer',
-            'url' => env('DS_SIDECAR_LINK_ENVOYER', ''),
         ],
         [
             'name' => 'Horizon',
@@ -109,49 +74,13 @@ return [
         ],
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Commands
-    |--------------------------------------------------------------------------
-    |
-    | Custom Artisan commands available from the Sidecar panel. Each command
-    | should have a "name" and "command" key.
-    |
-    */
-
-    'commands' => [
-        [
-            'name' => 'Clear cached optimized files',
-            'command' => 'optimize:clear',
-        ],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Git Branch
-    |--------------------------------------------------------------------------
-    |
-    | Git branch information displayed in the Sidecar panel.
-    |
-    */
-
     'branch_name' => env('HEADER_BRANCH_NAME', ''),
+
     'branch_url' => env('DS_SIDECAR_BRANCH_URL', ''),
 
     /*
-    |--------------------------------------------------------------------------
-    | Badge Fallback
-    |--------------------------------------------------------------------------
-    |
-    | Fallback badge for browsers without the Chrome extension (Safari/Mobile).
-    |
-    | Options:
-    |   - "environment" : Shows the environment name (local, staging, sandbox)
-    |   - "branch"      : Shows the current git branch name
-    |   - "env_branch"  : Shows environment + branch (e.g., "local · main")
-    |   - "show_tag"    : Shows the deploy tag on staging environments
-    |
+    | Badge drawn on the page itself, for browsers without the extension.
+    | One of: "environment", "branch", "env_branch", "show_tag".
     */
-
     'badge_fallback' => env('DS_SIDECAR_BADGE_FALLBACK', 'branch'),
 ];

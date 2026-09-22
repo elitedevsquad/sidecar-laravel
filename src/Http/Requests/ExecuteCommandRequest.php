@@ -18,6 +18,7 @@ class ExecuteCommandRequest extends FormRequest
     {
         return [
             'command' => ['string', 'required'],
+            'parameters' => ['array'],
         ];
     }
 }

@@ -31,9 +31,7 @@ export class Sidecar {
     injectBadge() {
         if (!this.data?.badge_fallback) return;
 
-        const hasExtension = document.getElementById('devsquad-env-badge');
-
-        if (hasExtension) return;
+        if (document.documentElement.dataset.sidecar) return;
 
         if (document.getElementById('sidecar-badge')) return;
 
@@ -162,6 +160,14 @@ export class Sidecar {
             await this.fetchInitialData();
         });
 
+        window.addEventListener("sidecar:to:page:listCommands", async () => {
+            await this.handleListCommands();
+        });
+
+        window.addEventListener("sidecar:to:page:fetchLogs", async () => {
+            await this.handleFetchLogs();
+        });
+
         const commandEndpoints = {
             "sidecar:to:page:executeCommand": ["/__devsquad-sidecar/execute-command", "sidecar:to:extension:commandOutput"],
             "sidecar:to:page:executeTinker": ["/__devsquad-sidecar/execute-tinker", "sidecar:to:extension:tinkerOutput"],
@@ -187,6 +193,24 @@ export class Sidecar {
         }
     }
 
+    async handleListCommands() {
+        const data = await this.request("/__devsquad-sidecar/commands");
+
+        this.dispatch("sidecar:to:extension:commands", {
+            commands: data.commands ?? [],
+            generatedAt: data.generated_at ?? null,
+            error: data.commands ? null : (data.error?.message ?? "Could not read the command list."),
+        });
+    }
+
+    async handleFetchLogs() {
+        const data = await this.request("/__devsquad-sidecar/logs");
+
+        this.dispatch("sidecar:to:extension:logs", data.error
+            ? { error: data.error.message ?? String(data.error) }
+            : data);
+    }
+
     async handleCommand(endpoint, payload, outputEvent) {
         const data = await this.request(endpoint, {
             method: "POST",
@@ -197,7 +221,9 @@ export class Sidecar {
             console.warn('Sidecar: ', data);
         }
 
-        this.dispatch(outputEvent, data.output ?? data.error.message);
+        const output = data.output ?? data.error?.message ?? "";
+
+        this.dispatch(outputEvent, payload?.runId ? { output, runId: payload.runId } : output);
     }
 
     dispatch(event, detail) {

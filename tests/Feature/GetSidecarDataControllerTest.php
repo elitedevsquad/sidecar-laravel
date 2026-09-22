@@ -35,8 +35,8 @@ it('returns full JSON payload', function () {
     Config::set('devsquad-sidecar.auth_token', 'test_token');
     Config::set('devsquad-sidecar.branch_name', 'main');
     Config::set('devsquad-sidecar.links', ['docs' => 'url']);
-    Config::set('devsquad-sidecar.commands', ['migrate']);
     Config::set('devsquad-sidecar.branch_url', 'http://repo/branch');
+    Config::set('devsquad-sidecar.health_enabled', true);
 
     Http::fake([
         'api.github.com/*' => Http::response(['tag_name' => 'v1.0.0'], 200),
@@ -66,11 +66,13 @@ it('returns full JSON payload', function () {
         'links' => [
             'docs' => 'url',
         ],
-        'commands' => ['migrate'],
+        'commands_introspection' => true,
+        'health_enabled' => true,
         'branch_url' => 'http://repo/branch',
     ]);
 
-    $response->assertJsonStructure(['version', 'package_updated']);
+    $response->assertJsonStructure(['version', 'package_updated', 'fake_clock_offset', 'timezone'])
+        ->assertJsonMissingPath('health');
 });
 
 it('includes a signed login_url for each user', function () {
