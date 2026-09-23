@@ -62,6 +62,15 @@ it('keeps accepting a command written as one string', function () {
         ->and($this->runner->parameters)->toBe(['--once']);
 });
 
+it('strips the quotes from a command written as one string', function () {
+    postJson('__devsquad-sidecar/execute-command', [
+        'command' => 'sidecar-test:probe "two words" --queue="high priority" --tag=\'a b\'',
+    ])->assertOk();
+
+    expect($this->runner->name)->toBe('sidecar-test:probe')
+        ->and($this->runner->parameters)->toBe(['two words', '--queue=high priority', '--tag=a b']);
+});
+
 it('passes structured parameters through untouched', function () {
     postJson('__devsquad-sidecar/execute-command', [
         'command' => 'sidecar-test:probe',

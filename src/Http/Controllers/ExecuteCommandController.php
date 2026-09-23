@@ -57,9 +57,59 @@ readonly class ExecuteCommandController
      */
     private function split(string $command): array
     {
-        $parts = preg_split('/\s+/', trim($command)) ?: [];
+        $parts = $this->tokenize(trim($command));
         $name = array_shift($parts) ?? '';
 
         return [$name, $parts];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function tokenize(string $line): array
+    {
+        $tokens = [];
+        $current = '';
+        $quote = null;
+        $started = false;
+
+        foreach (mb_str_split($line) as $char) {
+            if ($quote !== null) {
+                if ($char === $quote) {
+                    $quote = null;
+                } else {
+                    $current .= $char;
+                }
+
+                continue;
+            }
+
+            if ($char === '"' || $char === "'") {
+                $quote = $char;
+                $started = true;
+
+                continue;
+            }
+
+            if (ctype_space($char)) {
+                if ($started) {
+                    $tokens[] = $current;
+                }
+
+                $current = '';
+                $started = false;
+
+                continue;
+            }
+
+            $current .= $char;
+            $started = true;
+        }
+
+        if ($started) {
+            $tokens[] = $current;
+        }
+
+        return $tokens;
     }
 }

@@ -33,6 +33,8 @@ export class Sidecar {
 
         if (document.documentElement.dataset.sidecar) return;
 
+        if (document.getElementById('devsquad-env-badge')) return;
+
         if (document.getElementById('sidecar-badge')) return;
 
         const stored = sessionStorage.getItem('sidecar_badge_dismissed');
@@ -128,7 +130,13 @@ export class Sidecar {
     }
 
     async fetchInitialData(withoutUsers = false) {
-        const data = await this.request("/__devsquad-sidecar/data?without_users=" + (withoutUsers ? "true" : "false"), {});
+        const params = new URLSearchParams({ without_users: withoutUsers ? "true" : "false" });
+
+        if (!document.documentElement.dataset.sidecar) {
+            params.set("legacy_commands", "true");
+        }
+
+        const data = await this.request("/__devsquad-sidecar/data?" + params.toString(), {});
 
         if (data.error) {
             if (data.error.statusCode === 403) {
