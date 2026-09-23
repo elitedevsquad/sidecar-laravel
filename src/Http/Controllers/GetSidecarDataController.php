@@ -3,14 +3,17 @@
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use Composer\InstalledVersions;
-use EliteDevSquad\SidecarLaravel\{FakeClock, Sidecar};
+use EliteDevSquad\SidecarLaravel\{CommandCatalog, FakeClock, Sidecar};
 use EliteDevSquad\SidecarLaravel\Http\Resources\SidecarUserResource;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{Auth, Cache, Http};
 
 class GetSidecarDataController
 {
-    public function __construct(private readonly Sidecar $sidecar) {}
+    public function __construct(
+        private readonly Sidecar $sidecar,
+        private readonly CommandCatalog $catalog,
+    ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -46,6 +49,7 @@ class GetSidecarDataController
             'environment' => app()->environment(),
             'users' => $users,
             'links' => config('devsquad-sidecar.links', []),
+            'commands' => $this->getLegacyCommands($request),
             'commands_introspection' => true,
             'branch_url' => $branchUrl,
             'fake_clock' => FakeClock::current()?->format('Y-m-d H:i:s'),
@@ -54,6 +58,7 @@ class GetSidecarDataController
             'health_enabled' => (bool) config('devsquad-sidecar.health_enabled'),
             'version' => $this->getPackageVersion(),
             'package_updated' => $this->isPackageUpdated() ? 'Yes' : 'No',
+            'latest_version' => $this->getLatestVersion(),
         ]);
     }
 
@@ -95,24 +100,51 @@ class GetSidecarDataController
 
     private function isPackageUpdated(): bool
     {
-        $currentVersion = $this->getPackageVersion();
+        $latestVersion = $this->getLatestVersion();
 
-        return Cache::remember('sidecar_package_updated', now()->addHours(2), function () use ($currentVersion): bool {
+        if ($latestVersion === null) {
+            return true;
+        }
+
+        return version_compare(ltrim($this->getPackageVersion(), 'v'), ltrim($latestVersion, 'v'), '>=');
+    }
+
+    private function getLatestVersion(): ?string
+    {
+        /** @var string $latestVersion */
+        $latestVersion = Cache::remember('sidecar_package_latest', now()->addHours(2), function (): string {
             try {
                 $response = Http::withHeaders(['User-Agent' => 'Sidecar-Laravel'])
                     ->get('https://api.github.com/repos/EliteDevSquad/sidecar-laravel/releases/latest');
 
-                if ($response->successful()) {
-                    /** @var string $latestVersion */
-                    $latestVersion = $response->json('tag_name');
+                $tag = $response->successful() ? $response->json('tag_name') : null;
 
-                    return version_compare(ltrim($currentVersion, 'v'), ltrim($latestVersion, 'v'), '>=');
-                }
+                return is_string($tag) ? $tag : '';
             } catch (\Exception) {
-                return true;
+                return '';
             }
-
-            return true;
         });
+
+        return $latestVersion !== '' ? $latestVersion : null;
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private function getLegacyCommands(Request $request): array
+    {
+        /** @var array<int, mixed> $configured */
+        $configured = config('devsquad-sidecar.commands', []);
+
+        if (! $request->boolean('legacy_commands') || ! config('devsquad-sidecar.commands_enabled', true)) {
+            return $configured;
+        }
+
+        $discovered = array_map(
+            fn (array $command) => ['name' => $command['name'], 'command' => $command['name']],
+            $this->catalog->all()
+        );
+
+        return [...$configured, ...$discovered];
     }
 }

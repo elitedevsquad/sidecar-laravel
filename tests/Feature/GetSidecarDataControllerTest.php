@@ -228,7 +228,7 @@ it('returns package_updated Yes when current version is up to date', function ()
         'api.github.com/*' => Http::response(['tag_name' => $installedVersion], 200),
     ]);
 
-    Cache::forget('sidecar_package_updated');
+    Cache::forget('sidecar_package_latest');
 
     withoutMiddleware(SidecarMiddleware::class);
 
@@ -244,7 +244,7 @@ it('returns package_updated Yes when GitHub API call fails', function () {
         'api.github.com/*' => Http::response([], 500),
     ]);
 
-    Cache::forget('sidecar_package_updated');
+    Cache::forget('sidecar_package_latest');
 
     withoutMiddleware(SidecarMiddleware::class);
 
@@ -260,7 +260,7 @@ it('returns package_updated No when a newer version exists on GitHub', function 
         'api.github.com/*' => Http::response(['tag_name' => 'v999.0.0'], 200),
     ]);
 
-    Cache::forget('sidecar_package_updated');
+    Cache::forget('sidecar_package_latest');
 
     withoutMiddleware(SidecarMiddleware::class);
 
@@ -276,7 +276,7 @@ it('caches the GitHub update check result for one day', function () {
         'api.github.com/*' => Http::response(['tag_name' => 'v999.0.0'], 200),
     ]);
 
-    Cache::forget('sidecar_package_updated');
+    Cache::forget('sidecar_package_latest');
 
     withoutMiddleware(SidecarMiddleware::class);
 
@@ -289,4 +289,56 @@ it('caches the GitHub update check result for one day', function () {
     getJson('__devsquad-sidecar/data?without_users=true')->assertOk()->assertJson(['package_updated' => 'No']);
 
     Http::assertSentCount(1);
+});
+
+it('lists the commands in the old shape for extensions before 3.0', function () {
+    Config::set('devsquad-sidecar.enabled', true);
+    Config::set('devsquad-sidecar.commands_enabled', true);
+    Config::set('devsquad-sidecar.blocked_commands', []);
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    $commands = getJson('__devsquad-sidecar/data?without_users=true&legacy_commands=true')
+        ->assertOk()
+        ->json('commands');
+
+    expect($commands)->toContain(['name' => 'sidecar-test:probe', 'command' => 'sidecar-test:probe']);
+});
+
+it('keeps the configured commands and skips discovery unless asked', function () {
+    Config::set('devsquad-sidecar.enabled', true);
+    Config::set('devsquad-sidecar.commands', [['name' => 'Clear', 'command' => 'optimize:clear']]);
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    getJson('__devsquad-sidecar/data?without_users=true')
+        ->assertOk()
+        ->assertJsonPath('commands', [['name' => 'Clear', 'command' => 'optimize:clear']]);
+});
+
+it('does not list commands for old extensions when commands are disabled', function () {
+    Config::set('devsquad-sidecar.enabled', true);
+    Config::set('devsquad-sidecar.commands_enabled', false);
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    getJson('__devsquad-sidecar/data?without_users=true&legacy_commands=true')
+        ->assertOk()
+        ->assertJsonPath('commands', []);
+});
+
+it('sends the latest released version', function () {
+    Config::set('devsquad-sidecar.enabled', true);
+
+    Http::fake([
+        'api.github.com/*' => Http::response(['tag_name' => 'v999.0.0'], 200),
+    ]);
+
+    Cache::forget('sidecar_package_latest');
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    getJson('__devsquad-sidecar/data?without_users=true')
+        ->assertOk()
+        ->assertJson(['latest_version' => 'v999.0.0', 'package_updated' => 'No']);
 });
