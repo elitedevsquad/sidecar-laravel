@@ -130,9 +130,10 @@ export class Sidecar {
     }
 
     async fetchInitialData(withoutUsers = false) {
-        const params = new URLSearchParams({ without_users: withoutUsers ? "true" : "false" });
+        const hasExtension = !!document.documentElement.dataset.sidecar;
+        const params = new URLSearchParams({ without_users: withoutUsers || hasExtension ? "true" : "false" });
 
-        if (!document.documentElement.dataset.sidecar) {
+        if (!hasExtension) {
             params.set("legacy_commands", "true");
         }
 
@@ -176,6 +177,10 @@ export class Sidecar {
             await this.handleFetchLogs();
         });
 
+        window.addEventListener("sidecar:to:page:listUsers", async ({ detail }) => {
+            await this.handleListUsers(detail || {});
+        });
+
         const commandEndpoints = {
             "sidecar:to:page:executeCommand": ["/__devsquad-sidecar/execute-command", "sidecar:to:extension:commandOutput"],
             "sidecar:to:page:executeTinker": ["/__devsquad-sidecar/execute-tinker", "sidecar:to:extension:tinkerOutput"],
@@ -209,6 +214,22 @@ export class Sidecar {
             generatedAt: data.generated_at ?? null,
             error: data.commands ? null : (data.error?.message ?? "Could not read the command list."),
         });
+    }
+
+    async handleListUsers({ page, per_page, search, role, ids, requestId }) {
+        const params = new URLSearchParams();
+
+        if (page) params.set("page", String(page));
+        if (per_page) params.set("per_page", String(per_page));
+        if (search) params.set("search", search);
+        if (role) params.set("role", role);
+        if (Array.isArray(ids) && ids.length) params.set("ids", ids.join(","));
+
+        const data = await this.request("/__devsquad-sidecar/users?" + params.toString());
+
+        this.dispatch("sidecar:to:extension:users", data.error
+            ? { error: data.error.message ?? String(data.error), requestId: requestId ?? null }
+            : { ...data, requestId: requestId ?? null });
     }
 
     async handleFetchLogs() {

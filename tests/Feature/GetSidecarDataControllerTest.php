@@ -4,6 +4,7 @@ use Composer\InstalledVersions;
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use EliteDevSquad\SidecarLaravel\Sidecar;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\{Cache, Config, Http};
 use Tests\User;
 
@@ -15,6 +16,12 @@ beforeEach(function () {
     $this->sidecar = Mockery::mock(Sidecar::class);
 
     $this->sidecar->shouldReceive('getUserModel')->andReturn(User::class);
+    $this->sidecar->shouldReceive('getUserMap')->andReturn([
+        'id' => 'id',
+        'name' => 'name',
+        'email' => 'email',
+        'role' => 'role.name',
+    ])->byDefault();
 
     app()->instance(Sidecar::class, $this->sidecar);
 
@@ -341,4 +348,32 @@ it('sends the latest released version', function () {
     getJson('__devsquad-sidecar/data?without_users=true')
         ->assertOk()
         ->assertJson(['latest_version' => 'v999.0.0', 'package_updated' => 'No']);
+});
+
+it('sends the signed-in user so the panel does not need the full list', function () {
+    Config::set('devsquad-sidecar.enabled', true);
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    getJson('__devsquad-sidecar/data?without_users=true')
+        ->assertOk()
+        ->assertJsonPath('users_paginated', true)
+        ->assertJsonPath('users', [])
+        ->assertJsonPath('current_user_data.id', $this->user->id)
+        ->assertJsonPath('current_user_data.email', $this->user->email)
+        ->assertJsonStructure(['current_user_data' => ['login_url']]);
+});
+
+it('treats an unreachable GitHub as up to date', function () {
+    Config::set('devsquad-sidecar.enabled', true);
+
+    Http::fake(fn () => throw new ConnectionException('GitHub is down'));
+
+    Cache::forget('sidecar_package_latest');
+
+    withoutMiddleware(SidecarMiddleware::class);
+
+    getJson('__devsquad-sidecar/data?without_users=true')
+        ->assertOk()
+        ->assertJson(['package_updated' => 'Yes', 'latest_version' => null]);
 });
