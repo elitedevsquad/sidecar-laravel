@@ -1,7 +1,7 @@
 <?php
 
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
-use EliteDevSquad\SidecarLaravel\Sidecar;
+use EliteDevSquad\SidecarLaravel\{Sidecar, UserDirectory};
 use Illuminate\Support\Facades\{Config, DB};
 use Tests\User;
 
@@ -100,6 +100,59 @@ it('ignores map entries that are not columns', function () {
     getJson('__devsquad-sidecar/users')
         ->assertOk()
         ->assertJsonPath('roles', null);
+});
+
+it('finds a user by id when the search is a number', function () {
+    getJson('__devsquad-sidecar/users?search=40')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', 40);
+});
+
+it('returns nothing when no mapped field can be searched', function () {
+    Sidecar::$userMap = ['id' => 'id', 'name' => 'full_name', 'email' => 'missing', 'role' => 'role.name'];
+
+    getJson('__devsquad-sidecar/users?search=luan')
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});
+
+it('filters and lists roles stored in a plain column', function () {
+    Sidecar::$userMap = ['id' => 'id', 'name' => 'name', 'email' => 'email', 'role' => 'name'];
+
+    $response = getJson('__devsquad-sidecar/users?role=Luan')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', 1);
+
+    expect($response->json('roles'))->toContain('Luan', 'John Doe', 'Seeded 3');
+});
+
+it('has no role list without a role mapping', function () {
+    Sidecar::$userMap = ['id' => 'id', 'name' => 'name', 'email' => 'email', 'role' => ''];
+
+    getJson('__devsquad-sidecar/users')
+        ->assertOk()
+        ->assertJsonPath('roles', null);
+});
+
+it('skips a relation path that is not a relation', function (string $path) {
+    Sidecar::$userMap = ['id' => 'id', 'name' => 'name', 'email' => 'email', 'role' => $path];
+
+    getJson('__devsquad-sidecar/users?role=admin')
+        ->assertOk()
+        ->assertJsonCount(0, 'data')
+        ->assertJsonPath('roles', null);
+})->with([
+    'method returning a value' => 'getTable.name',
+    'method that needs arguments' => 'setAttribute.name',
+]);
+
+it('has no role list when the role query fails', function () {
+    Sidecar::$userMap = ['id' => 'id', 'name' => 'name', 'email' => 'email', 'role' => 'name'];
+    Sidecar::$userBuilder = User::query()->whereRaw('no_such_column = 1');
+
+    expect(app(UserDirectory::class)->roles())->toBeNull();
 });
 
 it('does not change the configured builder between requests', function () {
