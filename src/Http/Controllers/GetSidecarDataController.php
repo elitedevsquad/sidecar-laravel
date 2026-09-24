@@ -42,6 +42,8 @@ class GetSidecarDataController
             'project_name' => $projectName,
             'authenticated' => true,
             'current_user' => Auth::id(),
+            'current_user_data' => $this->getCurrentUser(),
+            'users_paginated' => true,
             'branch' => $this->getBranch(),
             'app_tag' => $this->getAppTag(),
             'badge_fallback' => config('devsquad-sidecar.badge_fallback'),
@@ -72,6 +74,16 @@ class GetSidecarDataController
         $users = Cache::rememberForever('sidecar_users', fn () => $builder->get()); // @phpstan-ignore-line
 
         return SidecarUserResource::collection($users)->all(); // @phpstan-ignore-line
+    }
+
+    /**
+     * @return array<mixed>|null
+     */
+    private function getCurrentUser(): ?array
+    {
+        $user = Auth::user();
+
+        return $user ? SidecarUserResource::make($user)->resolve() : null;
     }
 
     private function getBranch(): string
