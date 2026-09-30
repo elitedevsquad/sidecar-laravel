@@ -14,7 +14,7 @@ readonly class ListCommandsController
         abort_unless((bool) config('devsquad-sidecar.commands_enabled', true), 403, 'Commands are disabled.');
 
         return response()->json([
-            'commands' => $this->catalog->all(),
+            'commands' => $this->catalog->fromConsole(),
             'generated_at' => now()->toIso8601String(),
         ]);
     }

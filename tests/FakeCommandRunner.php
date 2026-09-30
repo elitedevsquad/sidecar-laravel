@@ -13,11 +13,20 @@ class FakeCommandRunner extends CommandRunner
 
     public string $output = 'fake output';
 
+    public ?string $captured = null;
+
     public function run(string $name, array $parameters = []): string
     {
         $this->name = $name;
         $this->parameters = $parameters;
 
         return $this->output;
+    }
+
+    public function capture(string $name): ?string
+    {
+        $this->name = $name;
+
+        return $this->captured;
     }
 }
