@@ -2,6 +2,7 @@
 
 namespace EliteDevSquad\SidecarLaravel\Providers;
 
+use EliteDevSquad\SidecarLaravel\Console\CatalogCommand;
 use EliteDevSquad\SidecarLaravel\{FakeClock, Sidecar};
 use EliteDevSquad\SidecarLaravel\Http\Middleware\{FakeClockMiddleware, SidecarInjectJsMiddleware, SidecarMiddleware};
 use Illuminate\Contracts\Http\Kernel;
@@ -35,6 +36,8 @@ class SidecarServiceProvider extends BaseServiceProvider
         $kernel->appendMiddlewareToGroup('web', SidecarInjectJsMiddleware::class);
 
         if ($this->app->runningInConsole()) {
+            $this->commands([CatalogCommand::class]);
+
             FakeClock::applyFromCache();
         }
     }

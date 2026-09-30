@@ -43,9 +43,16 @@ return [
     |--------------------------------------------------------------------------
     |
     | The panel lists the application's own Artisan commands, read from the
-    | console kernel; framework and package commands are already excluded.
+    | console kernel; framework and package commands are left out unless
+    | "included_commands" names them. Both lists take command names or class
+    | names, with "*" as a wildcard, and a blocked command stays blocked.
     |
     */
+
+    'included_commands' => [
+        // 'horizon:*',
+        // 'scout:*',
+    ],
 
     'blocked_commands' => [
         // 'App\\Console\\Commands\\Deprecated\\*',

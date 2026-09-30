@@ -69,3 +69,22 @@ it('passes a typed command line through as written', function () {
 
     expect(explode(PHP_EOL, $output))->toContain('--part=1', '--message=two words', '--dry-run');
 });
+
+it('captures the standard output of a successful run', function () {
+    $output = app(CommandRunner::class)->capture('sidecar:catalog');
+
+    expect(explode(PHP_EOL, trim($output)))->toBe(['sidecar:catalog', '--no-interaction']);
+});
+
+it('captures nothing when the command fails', function () {
+    file_put_contents($this->root.'/artisan', "<?php\necho 'partial';\nexit(1);\n");
+
+    expect(app(CommandRunner::class)->capture('sidecar:catalog'))->toBeNull();
+});
+
+it('captures nothing when the command runs past the timeout', function () {
+    config()->set('devsquad-sidecar.command_timeout', 0.2);
+    file_put_contents($this->root.'/artisan', "<?php\nsleep(2);\n");
+
+    expect(app(CommandRunner::class)->capture('sidecar:catalog'))->toBeNull();
+});

@@ -19,6 +19,8 @@ class CommandCatalog
         'help', 'quiet', 'verbose', 'version', 'ansi', 'no-ansi', 'no-interaction', 'env',
     ];
 
+    public function __construct(private CommandRunner $runner) {}
+
     /**
      * @return array<int, array<string, mixed>>
      */
@@ -30,7 +32,11 @@ class CommandCatalog
         $registered = Artisan::all();
 
         foreach ($registered as $name => $command) {
-            if (! $this->isApplicationCommand($command) || $this->isBlocked($name, $command)) {
+            if ($command->isHidden() || $this->isBlocked($name, $command)) {
+                continue;
+            }
+
+            if (! $this->isApplicationCommand($command) && ! $this->isIncluded($name, $command)) {
                 continue;
             }
 
@@ -49,10 +55,44 @@ class CommandCatalog
         return $commands;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function fromConsole(): array
+    {
+        $lines = preg_split('/\R/', trim((string) $this->runner->capture('sidecar:catalog'))) ?: [];
+        $commands = json_decode((string) end($lines), true);
+
+        if (! is_array($commands) || ! array_is_list($commands)) {
+            return $this->all();
+        }
+
+        /** @var array<int, array<string, mixed>> $commands */
+        return $commands;
+    }
+
     public function isBlocked(string $name, ?Command $command = null): bool
     {
+        return $this->matches('devsquad-sidecar.blocked_commands', $name, $command);
+    }
+
+    public function isExecutable(string $name): bool
+    {
+        /** @var array<string, Command> $registered */
+        $registered = Artisan::all();
+
+        return ! $this->isBlocked($name, $registered[$name] ?? null);
+    }
+
+    private function isIncluded(string $name, ?Command $command = null): bool
+    {
+        return $this->matches('devsquad-sidecar.included_commands', $name, $command);
+    }
+
+    private function matches(string $key, string $name, ?Command $command): bool
+    {
         /** @var array<int, string> $patterns */
-        $patterns = config('devsquad-sidecar.blocked_commands', []);
+        $patterns = config($key, []);
 
         foreach ($patterns as $pattern) {
             if (Str::is($pattern, $name)) {
@@ -67,20 +107,8 @@ class CommandCatalog
         return false;
     }
 
-    public function isExecutable(string $name): bool
-    {
-        /** @var array<string, Command> $registered */
-        $registered = Artisan::all();
-
-        return ! $this->isBlocked($name, $registered[$name] ?? null);
-    }
-
     private function isApplicationCommand(Command $command): bool
     {
-        if ($command->isHidden()) {
-            return false;
-        }
-
         if ($command instanceof ClosureCommand) {
             return true;
         }

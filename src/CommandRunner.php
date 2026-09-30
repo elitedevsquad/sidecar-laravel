@@ -2,6 +2,7 @@
 
 namespace EliteDevSquad\SidecarLaravel;
 
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\{PhpExecutableFinder, Process};
 
 class CommandRunner
@@ -11,19 +12,11 @@ class CommandRunner
      */
     public function run(string $name, array $parameters = []): string
     {
-        $php = (new PhpExecutableFinder())->find(false);
+        $process = $this->process($name, $this->toArguments($parameters));
 
-        if ($php === false) {
+        if ($process === null) {
             return 'Could not find the PHP executable to run the command.';
         }
-
-        $process = new Process(
-            [$php, base_path('artisan'), $name, ...$this->toArguments($parameters), '--no-interaction'],
-            base_path(),
-            null,
-            null,
-            $this->timeout()
-        );
 
         $process->run();
 
@@ -36,6 +29,43 @@ class CommandRunner
         }
 
         return $output;
+    }
+
+    public function capture(string $name): ?string
+    {
+        $process = $this->process($name);
+
+        if ($process === null) {
+            return null;
+        }
+
+        try {
+            $process->run();
+        } catch (ProcessTimedOutException) {
+            return null;
+        }
+
+        return $process->isSuccessful() ? $process->getOutput() : null;
+    }
+
+    /**
+     * @param  array<int, string>  $arguments
+     */
+    private function process(string $name, array $arguments = []): ?Process
+    {
+        $php = (new PhpExecutableFinder())->find(false);
+
+        if ($php === false) {
+            return null;
+        }
+
+        return new Process(
+            [$php, base_path('artisan'), $name, ...$arguments, '--no-interaction'],
+            base_path(),
+            null,
+            null,
+            $this->timeout()
+        );
     }
 
     /**
