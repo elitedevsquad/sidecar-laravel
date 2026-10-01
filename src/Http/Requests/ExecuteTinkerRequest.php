@@ -8,7 +8,7 @@ class ExecuteTinkerRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return ! app()->isProduction();
+        return ! app()->isProduction() && (bool) config('devsquad-sidecar.tinker_enabled', true);
     }
 
     /**

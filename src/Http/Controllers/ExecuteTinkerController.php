@@ -27,6 +27,8 @@ readonly class ExecuteTinkerController
             define('STDIN', fopen('php://stdin', 'r'));
         }
 
+        set_time_limit(config()->integer('devsquad-sidecar.tinker_timeout', 60));
+
         try {
             Artisan::call('tinker', ['--execute' => $data['code']]);
             $output = Artisan::output();

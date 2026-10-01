@@ -2,6 +2,7 @@
 
 namespace EliteDevSquad\SidecarLaravel\Jobs;
 
+use EliteDevSquad\SidecarLaravel\FakeClock;
 use Illuminate\Bus\{Batchable, Queueable};
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,9 +18,13 @@ class SideCarExecuteTinkerJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    public int $timeout;
+
     public function __construct(
         public string $code
-    ) {}
+    ) {
+        $this->timeout = config()->integer('devsquad-sidecar.tinker_timeout', 60);
+    }
 
     public function handle(): void
     {
@@ -32,6 +37,8 @@ class SideCarExecuteTinkerJob implements ShouldQueue
 
             return;
         }
+
+        FakeClock::refreshFromCache();
 
         try {
             Artisan::call('tinker', ['--execute' => $this->code]);

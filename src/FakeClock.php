@@ -53,6 +53,17 @@ class FakeClock
         self::applyOffset(Cache::get(self::KEY));
     }
 
+    public static function refreshFromCache(): void
+    {
+        if (! self::isEnabled()) {
+            return;
+        }
+
+        Carbon::setTestNow();
+
+        self::applyOffset(Cache::get(self::KEY));
+    }
+
     public static function offset(): ?int
     {
         if (! self::isEnabled()) {
