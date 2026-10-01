@@ -477,3 +477,158 @@ it('registers the daily cleanup and honours the switch', function () {
 
     expect($event->filtersPass(app()))->toBeFalse();
 });
+
+it('stays quiet when presence is off', function () {
+    Config::set('devsquad-sidecar.presence_enabled', false);
+    $log = app(ActivityLog::class);
+
+    $log->record(['type' => 'command', 'summary' => 'cache:clear']);
+
+    expect($log->snapshot())->toBe(['testers' => [], 'recent' => []])
+        ->and($log->stop('anasouza1'))->toBe(['testers' => [], 'recent' => []])
+        ->and($log->full(null, null)['entries'])->toBe([])
+        ->and($log->entry('anything'))->toBeNull()
+        ->and(is_file(storage_path('app/sidecar/state.json')))->toBeFalse();
+});
+
+it('finds an entry that left the recent list and answers 404 for an unknown one', function () {
+    $log = app(ActivityLog::class);
+
+    foreach (range(1, ActivityLog::RECENT_LIMIT + 2) as $index) {
+        $log->record(['type' => 'command', 'summary' => "app:step {$index}", 'output' => "step {$index}"]);
+    }
+
+    $first = $log->full(null, null)['entries'][0];
+
+    expect(collect(activityRecent())->pluck('id'))->not->toContain($first['id']);
+
+    getJson('__devsquad-sidecar/activity/'.$first['id'])
+        ->assertOk()
+        ->assertJsonPath('output', 'step 1');
+
+    getJson('__devsquad-sidecar/activity/01UNKNOWN')->assertNotFound();
+});
+
+it('says the details expired when the heavy file or its reference is broken', function () {
+    $log = app(ActivityLog::class);
+    $log->record(['type' => 'command', 'summary' => 'app:sync']);
+
+    $path = storage_path('app/sidecar/state.json');
+    $state = json_decode((string) file_get_contents($path), true);
+    $entry = $state['recent'][0];
+
+    $state['recent'] = [
+        [...$entry, 'id' => 'bad-offset', 'ref' => ['file' => $entry['ref']['file'], 'offset' => 'x', 'length' => 10]],
+        [...$entry, 'id' => 'no-length', 'ref' => ['file' => $entry['ref']['file'], 'offset' => 0, 'length' => 0]],
+        [...$entry, 'id' => 'past-end', 'ref' => ['file' => $entry['ref']['file'], 'offset' => 999999, 'length' => 10]],
+        [...$entry, 'id' => 'garbage', 'ref' => ['file' => $entry['ref']['file'], 'offset' => 1, 'length' => 5]],
+        $entry,
+    ];
+    file_put_contents($path, json_encode($state));
+
+    foreach (['bad-offset', 'no-length', 'past-end', 'garbage'] as $id) {
+        expect($log->entry($id)['details'] ?? null)->toBe('Details expired');
+    }
+
+    unlink(storage_path('app/sidecar/'.$entry['ref']['file']));
+
+    expect($log->entry($entry['id'])['details'])->toBe('Details expired');
+});
+
+it('starts over from a broken state file and skips broken lines', function () {
+    $log = app(ActivityLog::class);
+    $dir = storage_path('app/sidecar');
+    @mkdir($dir, 0775, true);
+
+    file_put_contents($dir.'/state.json', '{not json');
+    expect($log->snapshot())->toBe(['testers' => [], 'recent' => []]);
+
+    file_put_contents($dir.'/state.json', '1');
+    expect($log->snapshot())->toBe(['testers' => [], 'recent' => []]);
+
+    file_put_contents($dir.'/state.json', json_encode(['testers' => ['anasouza1' => 'nope'], 'recent' => ['nope', [1 => 'x', 'id' => 'kept']]]));
+    $snapshot = $log->snapshot();
+
+    expect($snapshot['testers'])->toBe([])
+        ->and($snapshot['recent'])->toBe([['id' => 'kept']]);
+
+    $log->record(['type' => 'command', 'summary' => 'app:sync']);
+    $day = date('Y-m-d');
+    file_put_contents($dir."/activity-{$day}.jsonl", "not json\n1\n", FILE_APPEND);
+
+    expect($log->full($day, null)['entries'])->toHaveCount(1);
+});
+
+it('prunes old activity on the first write of a day', function () {
+    $log = app(ActivityLog::class);
+    $log->record(['type' => 'command', 'summary' => 'app:sync']);
+
+    $dir = storage_path('app/sidecar');
+    file_put_contents($dir.'/activity-2000-01-01.jsonl', "{}\n");
+
+    $state = json_decode((string) file_get_contents($dir.'/state.json'), true);
+    $state['cleaned_on'] = '2000-01-02';
+    file_put_contents($dir.'/state.json', json_encode($state));
+
+    $log->snapshot();
+
+    expect(is_file($dir.'/activity-2000-01-01.jsonl'))->toBeFalse()
+        ->and(is_file($dir.'/activity-'.date('Y-m-d').'.jsonl'))->toBeTrue();
+});
+
+it('reports cleared sizes in KB and MB, keeps current days, and can keep nothing', function () {
+    $log = app(ActivityLog::class);
+    $log->record(['type' => 'command', 'summary' => 'app:sync']);
+
+    $dir = storage_path('app/sidecar');
+    file_put_contents($dir.'/activity-2000-01-01.jsonl', str_repeat('a', 2048));
+
+    expect($log->clear(null, false, false)['message'])->toContain('2.0 KB')
+        ->and(is_file($dir.'/activity-'.date('Y-m-d').'.jsonl'))->toBeTrue();
+
+    file_put_contents($dir.'/activity-2000-01-01.jsonl', str_repeat('a', 2 * 1048576));
+
+    expect($log->clear(null, false, true)['message'])->toContain('2.0 MB');
+
+    expect($log->clear(0, false, true)['paths'])->toContain('activity-'.date('Y-m-d').'.jsonl');
+});
+
+it('reads boolean switches written as strings', function () {
+    Config::set('devsquad-sidecar.presence_require_confirm', 'false');
+    expect(app(ActivityLog::class)->requireConfirm())->toBeFalse();
+
+    Config::set('devsquad-sidecar.presence_require_confirm', 'maybe');
+    expect(app(ActivityLog::class)->requireConfirm())->toBeFalse();
+});
+
+it('treats a malformed tester header as anonymous', function () {
+    postJson('__devsquad-sidecar/presence', ['id' => 'brunolima', 'name' => 'Bruno Lima', 'ttl' => 600])->assertOk();
+
+    postJson('__devsquad-sidecar/execute-command', ['command' => 'view:clear'], ['X-Sidecar-Tester' => 'bad;Ana Souza'])
+        ->assertOk();
+
+    expect(collect(activityRecent())->firstWhere('summary', 'view:clear')['name'])->toBe('Someone');
+});
+
+it('spells out list, flag and skipped parameters in the command summary', function () {
+    postJson('__devsquad-sidecar/execute-command', [
+        'command' => 'app:sync',
+        'parameters' => ['part' => 2, '--dry-run' => true, '--force' => false, '--queue' => null, '--tags' => ['a']],
+    ])->assertOk();
+
+    postJson('__devsquad-sidecar/execute-command', [
+        'command' => 'app:sync',
+        'parameters' => ['--part=2', 3, ['nested']],
+    ])->assertOk();
+
+    $summaries = collect(activityRecent())->where('type', 'command')->pluck('summary')->all();
+
+    expect($summaries)->toContain('app:sync part=2 --dry-run')
+        ->and($summaries)->toContain('app:sync --part=2 3');
+});
+
+it('does not record a clock change that failed validation', function () {
+    postJson('__devsquad-sidecar/execute-fake-clock', ['datetime' => 'not a date'])->assertUnprocessable();
+
+    expect(collect(activityRecent())->where('type', 'clock'))->toHaveCount(0);
+});
