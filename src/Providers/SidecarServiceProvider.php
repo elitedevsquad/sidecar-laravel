@@ -2,9 +2,10 @@
 
 namespace EliteDevSquad\SidecarLaravel\Providers;
 
-use EliteDevSquad\SidecarLaravel\Console\CatalogCommand;
+use EliteDevSquad\SidecarLaravel\Console\{CatalogCommand, ClearActivityCommand};
 use EliteDevSquad\SidecarLaravel\{FakeClock, Sidecar};
 use EliteDevSquad\SidecarLaravel\Http\Middleware\{FakeClockMiddleware, SidecarInjectJsMiddleware, SidecarMiddleware};
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
@@ -36,10 +37,19 @@ class SidecarServiceProvider extends BaseServiceProvider
         $kernel->appendMiddlewareToGroup('web', SidecarInjectJsMiddleware::class);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([CatalogCommand::class]);
+            $this->commands([CatalogCommand::class, ClearActivityCommand::class]);
 
             FakeClock::applyFromCache();
         }
+
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
+            $schedule->command('sidecar:activity:clear')
+                ->daily()
+                ->when(fn (): bool => filter_var(
+                    config('devsquad-sidecar.activity_cleanup_schedule', true),
+                    FILTER_VALIDATE_BOOL
+                ));
+        });
     }
 
     public function register(): void

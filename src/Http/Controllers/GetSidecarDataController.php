@@ -3,6 +3,7 @@
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use Composer\InstalledVersions;
+use EliteDevSquad\SidecarLaravel\Activity\ActivityLog;
 use EliteDevSquad\SidecarLaravel\{CommandCatalog, FakeClock, Sidecar};
 use EliteDevSquad\SidecarLaravel\Http\Resources\SidecarUserResource;
 use Illuminate\Http\{JsonResponse, Request};
@@ -13,6 +14,7 @@ class GetSidecarDataController
     public function __construct(
         private readonly Sidecar $sidecar,
         private readonly CommandCatalog $catalog,
+        private readonly ActivityLog $activity,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
@@ -58,6 +60,8 @@ class GetSidecarDataController
             'fake_clock_offset' => FakeClock::offset(),
             'timezone' => config('app.timezone'),
             'health_enabled' => (bool) config('devsquad-sidecar.health_enabled'),
+            'presence' => $this->activity->available(),
+            'presence_require_confirm' => $this->activity->available() && $this->activity->requireConfirm(),
             'version' => $this->getPackageVersion(),
             'package_updated' => $this->isPackageUpdated() ? 'Yes' : 'No',
             'latest_version' => $this->getLatestVersion(),

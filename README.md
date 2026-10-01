@@ -75,6 +75,10 @@ DS_SIDECAR_TINKER_USE_BATCH=true
 DS_SIDECAR_TINKER_TIMEOUT=60
 DS_SIDECAR_COMMANDS_ENABLED=true
 DS_SIDECAR_FAKE_CLOCK_ENABLED=true
+DS_SIDECAR_PRESENCE_ENABLED=true
+DS_SIDECAR_PRESENCE_REQUIRE_CONFIRM=true
+DS_SIDECAR_ACTIVITY_RETENTION_DAYS=2
+DS_SIDECAR_ACTIVITY_CLEANUP_SCHEDULE=true
 DS_SIDECAR_ALLOWED_IPS="127.0.0.1"
 DS_SIDECAR_BRANCH_URL=https://github.com/your-org/your-repo/tree/
 DS_SIDECAR_LINK_MAIL=http://localhost:8025
@@ -85,6 +89,8 @@ DS_SIDECAR_LINK_ENVOYER=""
 ```env
 DS_SIDECAR_ALLOWED_IPS="127.0.0.1,192.168.1.0/24,10.0.0"
 ```
+
+**`DS_SIDECAR_PRESENCE_*`** — who is testing a shared environment and the timeline of what they ran. Off on local, on everywhere else unless set to `false`. Stored in `storage/app/sidecar/`; `php artisan sidecar:activity:clear` removes old activity (`--days=N`, `--all`, `--dry-run`) and runs daily when the schedule switch is on.
 
 **`HEADER_BRANCH_NAME`** — on servers without git (e.g. Envoyer), inject via release hook:
 ```bash

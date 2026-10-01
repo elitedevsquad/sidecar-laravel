@@ -39,6 +39,14 @@ return [
     // How far back to count errors in the log.
     'health_log_window_hours' => env('DS_SIDECAR_HEALTH_LOG_WINDOW_HOURS', 24),
 
+    'presence_enabled' => env('DS_SIDECAR_PRESENCE_ENABLED'),
+
+    'presence_require_confirm' => env('DS_SIDECAR_PRESENCE_REQUIRE_CONFIRM', true),
+
+    'activity_retention_days' => env('DS_SIDECAR_ACTIVITY_RETENTION_DAYS', 2),
+
+    'activity_cleanup_schedule' => env('DS_SIDECAR_ACTIVITY_CLEANUP_SCHEDULE', true),
+
     /*
     |--------------------------------------------------------------------------
     | Commands
