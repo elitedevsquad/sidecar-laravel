@@ -36,3 +36,10 @@ it('change clock when clock input is provided', function () {
 
     expect(now()->timestamp)->toEqualWithDelta($target->timestamp, 2);
 });
+
+it('refuses tinker code when tinker is disabled', function (string $route) {
+    config(['devsquad-sidecar.tinker_enabled' => false]);
+
+    postJson("__devsquad-sidecar/{$route}", ['code' => base64_encode('1 + 1')])
+        ->assertForbidden();
+})->with(['execute-tinker', 'execute-tinker-on-queue']);

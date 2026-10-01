@@ -27,6 +27,8 @@ return [
 
     'tinker_enabled' => env('DS_SIDECAR_TINKER_ENABLED', true),
 
+    'tinker_timeout' => env('DS_SIDECAR_TINKER_TIMEOUT', 60),
+
     // Run queued Tinker snippets as a batch.
     'tinker_use_batch' => env('DS_SIDECAR_TINKER_USE_BATCH', true),
 

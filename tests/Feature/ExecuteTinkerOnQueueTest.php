@@ -1,9 +1,11 @@
 <?php
 
+use EliteDevSquad\SidecarLaravel\FakeClock;
 use EliteDevSquad\SidecarLaravel\Jobs\SideCarExecuteTinkerJob;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Contracts\Debug\ExceptionHandler;
-use Illuminate\Support\Facades\{Artisan, Bus, Log, Queue};
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\{Artisan, Bus, Cache, Log, Queue};
 
 use function Pest\Laravel\{postJson, withoutMiddleware};
 
@@ -78,6 +80,32 @@ describe('Sidecar Tinker Execution', function () {
         Log::shouldReceive('error')->never();
 
         (new SideCarExecuteTinkerJob($code))->handle();
+    });
+
+    it('runs with the fake clock the panel set last, not the one the worker started with', function () {
+        $kernel = Mockery::mock(Kernel::class);
+        $kernel->shouldReceive('call')->andReturn(0);
+        $kernel->shouldReceive('output')->andReturn('');
+        app()->instance(Kernel::class, $kernel);
+        Artisan::swap($kernel);
+        Log::shouldReceive('info')->zeroOrMoreTimes()->andReturnNull();
+
+        Carbon::setTestNow(now()->addYears(5));
+        Cache::forever(FakeClock::KEY, 86400);
+
+        (new SideCarExecuteTinkerJob('now()'))->handle();
+        expect(now()->timestamp)->toEqualWithDelta(time() + 86400, 2);
+
+        Cache::forget(FakeClock::KEY);
+
+        (new SideCarExecuteTinkerJob('now()'))->handle();
+        expect(Carbon::hasTestNow())->toBeFalse();
+    });
+
+    it('takes its timeout from the config', function () {
+        config()->set('devsquad-sidecar.tinker_timeout', 15);
+
+        expect((new SideCarExecuteTinkerJob('1 + 1'))->timeout)->toBe(15);
     });
 
     it('dispatches job directly when batch disabled', function () {
