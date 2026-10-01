@@ -20,7 +20,7 @@ class SidecarMiddleware
     {
         $path = '/'.ltrim($request->path(), '/');
 
-        if (! (str_starts_with($path, '/__devsquad-sidecar/execute-') || $path === '/__devsquad-sidecar/execute')) {
+        if (! $this->isProtectedPath($path)) {
             return;
         }
 
@@ -44,6 +44,14 @@ class SidecarMiddleware
         }
 
         abort(403, "Unauthorized IP: {$clientIp}. \n\nYou are not authorized to execute this action.");
+    }
+
+    private function isProtectedPath(string $path): bool
+    {
+        return str_starts_with($path, '/__devsquad-sidecar/execute-')
+            || $path === '/__devsquad-sidecar/execute'
+            || $path === '/__devsquad-sidecar/presence'
+            || str_starts_with($path, '/__devsquad-sidecar/activity');
     }
 
     /**

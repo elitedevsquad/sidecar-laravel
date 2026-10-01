@@ -3,6 +3,7 @@ export class Sidecar {
         this.baseUrl = this._resolveBaseUrl();
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
         this.consoleShown = false;
+        this.tester = null;
         this.init();
     }
 
@@ -95,19 +96,23 @@ export class Sidecar {
     }
 
     async request(endpoint, options = {}) {
+        const { headers: extraHeaders, ...rest } = options;
+
         try {
             const response = await fetch(this.baseUrl + endpoint, {
+                ...rest,
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": this.csrfToken,
-                    ...(options.headers || {}),
+                    ...(extraHeaders || {}),
                 },
-                ...options,
             });
 
             if (!response.ok) {
-                localStorage.setItem("sidecar_authenticated", "false");
+                if (response.status !== 423) {
+                    localStorage.setItem("sidecar_authenticated", "false");
+                }
 
                 let errorDetail = {
                     statusCode: response.status,
@@ -181,6 +186,18 @@ export class Sidecar {
             await this.handleListUsers(detail || {});
         });
 
+        window.addEventListener("sidecar:to:page:setTester", ({ detail }) => {
+            this.tester = detail?.id ? { id: String(detail.id), name: String(detail.name || "") } : null;
+        });
+
+        window.addEventListener("sidecar:to:page:presence", async ({ detail }) => {
+            await this.handlePresence(detail || {});
+        });
+
+        window.addEventListener("sidecar:to:page:activity", async ({ detail }) => {
+            await this.handleActivity(detail || {});
+        });
+
         const commandEndpoints = {
             "sidecar:to:page:executeCommand": ["/__devsquad-sidecar/execute-command", "sidecar:to:extension:commandOutput"],
             "sidecar:to:page:executeTinker": ["/__devsquad-sidecar/execute-tinker", "sidecar:to:extension:tinkerOutput"],
@@ -195,9 +212,65 @@ export class Sidecar {
         }
     }
 
+    presenceKind(endpoint) {
+        if (endpoint.endsWith("/execute-tinker-on-queue")) return "tinker-queue";
+        if (endpoint.endsWith("/execute-tinker")) return "tinker";
+        if (endpoint.endsWith("/execute-fake-clock")) return "clock";
+
+        return "command";
+    }
+
+    testerHeaders(endpoint) {
+        if (!this.tester?.id) return {};
+
+        if (!/\/execute-|\/login-as$/.test(endpoint)) return {};
+
+        return { "X-Sidecar-Tester": `${this.tester.id};${this.tester.name || ""}` };
+    }
+
+    async handlePresence(detail) {
+        let data;
+
+        if (detail.action === "stop") {
+            data = await this.request("/__devsquad-sidecar/presence", {
+                method: "DELETE",
+                body: JSON.stringify({ id: detail.id }),
+            });
+        } else if (detail.action === "read") {
+            data = await this.request("/__devsquad-sidecar/activity");
+        } else {
+            data = await this.request("/__devsquad-sidecar/presence", {
+                method: "POST",
+                body: JSON.stringify({ id: detail.id, name: detail.name, ttl: detail.ttl }),
+            });
+        }
+
+        this.dispatch("sidecar:to:extension:presence", { ...data, requestId: detail.requestId ?? null });
+    }
+
+    async handleActivity(detail) {
+        const params = new URLSearchParams();
+
+        if (detail.full) params.set("full", "1");
+        if (detail.tester) params.set("tester", detail.tester);
+        if (detail.day) params.set("day", detail.day);
+
+        const path = detail.id
+            ? `/__devsquad-sidecar/activity/${encodeURIComponent(detail.id)}`
+            : `/__devsquad-sidecar/activity?${params.toString()}`;
+
+        const data = await this.request(path);
+
+        this.dispatch("sidecar:to:extension:activity", {
+            ...(data.error ? { error: data.error } : data),
+            requestId: detail.requestId ?? null,
+        });
+    }
+
     async handleUserLogin(userId) {
         const data = await this.request("/__devsquad-sidecar/login-as", {
             method: "POST",
+            headers: this.testerHeaders("/__devsquad-sidecar/login-as"),
             body: JSON.stringify({ user_id: userId }),
         });
 
@@ -243,8 +316,21 @@ export class Sidecar {
     async handleCommand(endpoint, payload, outputEvent) {
         const data = await this.request(endpoint, {
             method: "POST",
+            headers: this.testerHeaders(endpoint),
             body: JSON.stringify(payload),
         });
+
+        if (data.error?.statusCode === 423) {
+            this.dispatch("sidecar:to:extension:presenceRequired", {
+                testers: data.error.testers || [],
+                message: data.error.message || "Another tester is active.",
+                outputEvent,
+                payload,
+                runId: payload?.runId ?? null,
+                kind: this.presenceKind(endpoint),
+            });
+            return;
+        }
 
         if (data.error) {
             console.warn('Sidecar: ', data);
