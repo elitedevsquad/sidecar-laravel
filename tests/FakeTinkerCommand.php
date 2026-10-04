@@ -22,7 +22,8 @@ class FakeTinkerCommand extends Command
             return self::SUCCESS;
         }
 
-        $this->line('Booting Laravel... for this Tinker session. Result: 2');
+        $this->line("[!] Aliasing 'User' to 'App\\Models\\User' for this Tinker session.");
+        $this->line('Result: 2');
 
         return self::SUCCESS;
     }
