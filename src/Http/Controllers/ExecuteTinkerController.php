@@ -3,16 +3,15 @@
 namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use EliteDevSquad\SidecarLaravel\Http\Requests\ExecuteTinkerRequest;
+use EliteDevSquad\SidecarLaravel\TinkerRunner;
 use EliteDevSquad\SidecarLaravel\Traits\WithFakeClock;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Artisan;
-use Throwable;
 
 readonly class ExecuteTinkerController
 {
     use WithFakeClock;
 
-    public function __invoke(ExecuteTinkerRequest $request): JsonResponse
+    public function __invoke(ExecuteTinkerRequest $request, TinkerRunner $runner): JsonResponse
     {
         /**
          * @var array{
@@ -29,17 +28,7 @@ readonly class ExecuteTinkerController
 
         set_time_limit(config()->integer('devsquad-sidecar.tinker_timeout', 60));
 
-        try {
-            Artisan::call('tinker', ['--execute' => $data['code']]);
-            $output = Artisan::output();
-        } catch (Throwable $e) {
-            $output = 'Error executing code: '.$e->getMessage();
-        }
-
-        $output = str($output)
-            ->after('for this Tinker session.')
-            ->trim()
-            ->toString();
+        $output = $runner->run($data['code']);
 
         return response()->json(['output' => $output]);
     }

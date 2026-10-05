@@ -4,7 +4,7 @@ namespace EliteDevSquad\SidecarLaravel\Http\Controllers;
 
 use Composer\InstalledVersions;
 use EliteDevSquad\SidecarLaravel\Activity\ActivityLog;
-use EliteDevSquad\SidecarLaravel\{CommandCatalog, FakeClock, Sidecar};
+use EliteDevSquad\SidecarLaravel\{CommandCatalog, FakeClock, Sidecar, TinkerRunner};
 use EliteDevSquad\SidecarLaravel\Http\Resources\SidecarUserResource;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{Auth, Cache, Http};
@@ -55,6 +55,7 @@ class GetSidecarDataController
             'links' => config('devsquad-sidecar.links', []),
             'commands' => $this->getLegacyCommands($request),
             'commands_introspection' => true,
+            'tinker_variables' => TinkerRunner::supportsShell(),
             'branch_url' => $branchUrl,
             'fake_clock' => FakeClock::current()?->format('Y-m-d H:i:s'),
             'fake_clock_offset' => FakeClock::offset(),
