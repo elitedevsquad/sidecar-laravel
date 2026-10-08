@@ -18,6 +18,7 @@ class ExecuteFakeClockRequest extends FormRequest
     {
         return [
             'datetime' => ['nullable', 'string', 'date'],
+            'ttl' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

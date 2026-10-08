@@ -34,6 +34,8 @@ return [
 
     'fake_clock_enabled' => env('DS_SIDECAR_FAKE_CLOCK_ENABLED', true),
 
+    'fake_clock_database' => env('DS_SIDECAR_FAKE_CLOCK_DATABASE', env('APP_ENV') === 'sandbox'),
+
     'health_enabled' => env('DS_SIDECAR_HEALTH_ENABLED', true),
 
     // How far back to count errors in the log.

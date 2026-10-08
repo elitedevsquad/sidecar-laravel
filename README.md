@@ -75,6 +75,7 @@ DS_SIDECAR_TINKER_USE_BATCH=true
 DS_SIDECAR_TINKER_TIMEOUT=60
 DS_SIDECAR_COMMANDS_ENABLED=true
 DS_SIDECAR_FAKE_CLOCK_ENABLED=true
+DS_SIDECAR_FAKE_CLOCK_DATABASE=false
 DS_SIDECAR_PRESENCE_ENABLED=true
 DS_SIDECAR_PRESENCE_REQUIRE_CONFIRM=true
 DS_SIDECAR_ACTIVITY_RETENTION_DAYS=2
@@ -149,4 +150,6 @@ if (process.env.NODE_ENV !== 'production') {
 - Web requests are scoped to your **browser session**, so a clock you set never leaks to other users or guests — normal app pages keep real time for everyone else.
 - The clock is also mirrored to the shared **cache**, so **CLI processes** such as `php artisan schedule:run` pick it up. Each scheduler tick is a fresh process that re-reads the clock, so changing or resetting it takes effect without restarting anything.
 - It is disabled in production and can be toggled with `DS_SIDECAR_FAKE_CLOCK_ENABLED`.
-- Long-running processes (e.g. `queue:work`, Octane) capture the clock at boot; restart them to pick up a change.
+- A clock can be set for a while (`ttl`, in seconds): it then returns to real time on its own, in the browser, the scheduler and the workers. Without a `ttl` it stays until it is reset.
+- Queue workers (`queue:work`, Horizon) read the clock again before each job, so a change takes effect without restarting them. Octane still captures it at boot.
+- With `DS_SIDECAR_FAKE_CLOCK_DATABASE` (on by default when `APP_ENV=sandbox`), the database's `NOW()` and `CURRENT_TIMESTAMP` move with the clock, on MySQL and MariaDB. `SYSDATE()` does not.

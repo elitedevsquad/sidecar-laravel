@@ -60,3 +60,20 @@ it('resets fake clock when datetime is not provided', function () {
         ->and(Cache::has(FakeClock::KEY))
         ->toBeFalse();
 });
+
+it('returns to real time on its own when a ttl is given', function () {
+    postJson('__devsquad-sidecar/execute-fake-clock', [
+        'datetime' => '2030-01-01 00:00:00',
+        'ttl' => 3600,
+    ])->assertOk();
+
+    expect(FakeClock::expiresAt())->toEqualWithDelta(time() + 3600, 2)
+        ->and(FakeClock::lifetime())->toBe(3600);
+});
+
+it('rejects a ttl that is not a positive number of seconds', function () {
+    postJson('__devsquad-sidecar/execute-fake-clock', [
+        'datetime' => '2030-01-01 00:00:00',
+        'ttl' => 0,
+    ])->assertUnprocessable();
+});

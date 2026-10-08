@@ -11,6 +11,7 @@ class FakeClockMiddleware
     public function handle(Request $request, Closure $next): mixed
     {
         FakeClock::applyFromSession();
+        FakeClock::syncDatabase();
 
         return $next($request);
     }

@@ -7,7 +7,9 @@ use EliteDevSquad\SidecarLaravel\{FakeClock, Sidecar};
 use EliteDevSquad\SidecarLaravel\Http\Middleware\{FakeClockMiddleware, SidecarInjectJsMiddleware, SidecarMiddleware};
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Database\Events\ConnectionEstablished;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\{Event, Queue};
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 class SidecarServiceProvider extends BaseServiceProvider
@@ -40,7 +42,16 @@ class SidecarServiceProvider extends BaseServiceProvider
             $this->commands([CatalogCommand::class, ClearActivityCommand::class]);
 
             FakeClock::applyFromCache();
+
+            Queue::before(function (): void {
+                FakeClock::refreshFromCache();
+                FakeClock::syncDatabase();
+            });
         }
+
+        Event::listen(ConnectionEstablished::class, function (ConnectionEstablished $event): void {
+            FakeClock::syncDatabase($event->connection);
+        });
 
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->command('sidecar:activity:clear')

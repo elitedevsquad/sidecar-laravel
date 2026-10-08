@@ -17,7 +17,7 @@ class ExecuteFakeClockController
         $datetimeInput = $request->date('datetime');
 
         if ($datetimeInput) {
-            FakeClock::set($datetimeInput);
+            FakeClock::set($datetimeInput, $request->filled('ttl') ? $request->integer('ttl') : null);
 
             return response()->json(['output' => 'Fake clock set to '.$datetimeInput->toDateTimeString()]);
         }
