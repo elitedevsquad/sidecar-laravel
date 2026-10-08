@@ -75,11 +75,12 @@ it('returns full JSON payload', function () {
         ],
         'commands_introspection' => true,
         'tinker_variables' => true,
+        'fake_clock_ttl' => true,
         'health_enabled' => true,
         'branch_url' => 'http://repo/branch',
     ]);
 
-    $response->assertJsonStructure(['version', 'package_updated', 'fake_clock_offset', 'timezone'])
+    $response->assertJsonStructure(['version', 'package_updated', 'fake_clock_offset', 'fake_clock_expires_at', 'timezone'])
         ->assertJsonMissingPath('health');
 });
 
