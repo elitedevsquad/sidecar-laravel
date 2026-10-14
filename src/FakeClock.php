@@ -2,7 +2,8 @@
 
 namespace EliteDevSquad\SidecarLaravel;
 
-use Carbon\CarbonInterface;
+use Carbon\{CarbonInterface, FactoryImmutable};
+use Closure;
 use DateTimeInterface;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Carbon;
@@ -21,6 +22,11 @@ class FakeClock
      * @var array<string, true>
      */
     private static array $shiftedConnections = [];
+
+    /**
+     * The test-now closure this class last handed to Carbon, so a frozen time set by someone else is left alone.
+     */
+    private static ?Closure $appliedTestNow = null;
 
     public static function set(?DateTimeInterface $datetime, ?int $ttl = null): void
     {
@@ -57,6 +63,7 @@ class FakeClock
         Cache::forget(self::EXPIRES_KEY);
 
         Carbon::setTestNow();
+        self::$appliedTestNow = null;
     }
 
     public static function applyFromSession(): void
@@ -85,7 +92,9 @@ class FakeClock
             return;
         }
 
-        Carbon::setTestNow();
+        if (FactoryImmutable::getInstance()->getTestNow() === self::$appliedTestNow) {
+            Carbon::setTestNow();
+        }
 
         self::applyOffset(Cache::get(self::KEY), Cache::get(self::EXPIRES_KEY));
     }
@@ -181,11 +190,11 @@ class FakeClock
         $offset = (int) $offset;
         $expiresAt = is_numeric($expiresAt) ? (int) $expiresAt : null;
 
-        Carbon::setTestNow(
-            fn (CarbonInterface $realNow): CarbonInterface => $expiresAt !== null && $realNow->getTimestamp() >= $expiresAt
-                ? $realNow
-                : $realNow->addSeconds($offset)
-        );
+        self::$appliedTestNow = fn (CarbonInterface $realNow): CarbonInterface => $expiresAt !== null && $realNow->getTimestamp() >= $expiresAt
+            ? $realNow
+            : $realNow->addSeconds($offset);
+
+        Carbon::setTestNow(self::$appliedTestNow);
     }
 
     private static function isEnabled(): bool

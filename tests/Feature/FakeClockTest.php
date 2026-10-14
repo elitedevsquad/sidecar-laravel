@@ -232,6 +232,31 @@ it('lets a queue worker return to real time when the clock is reset', function (
     expect(Carbon::now()->timestamp)->toEqualWithDelta(time(), 2);
 });
 
+it('leaves a frozen time it did not set alone when a queued job starts', function () {
+    $frozen = Carbon::parse('2030-06-15 02:00:00');
+    Carbon::setTestNow($frozen);
+
+    $seen = null;
+
+    Queue::before(function () use (&$seen): void {
+        $seen = Carbon::now()->timestamp;
+    });
+
+    Queue::connection('sync')->push(new QueuedNothing());
+
+    expect($seen)->toBe($frozen->timestamp)
+        ->and(Carbon::now()->timestamp)->toBe($frozen->timestamp);
+});
+
+it('still applies a clock in the cache over a frozen time it did not set', function () {
+    Carbon::setTestNow(Carbon::parse('2030-06-15 02:00:00'));
+    Cache::forever(FakeClock::KEY, 86400);
+
+    FakeClock::refreshFromCache();
+
+    expect(Carbon::now()->timestamp)->toEqualWithDelta(time() + 86400, 2);
+});
+
 it('moves the database clock on MySQL while traveling, and puts it back after', function () {
     config(['devsquad-sidecar.fake_clock_database' => true]);
 
