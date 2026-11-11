@@ -60,6 +60,16 @@ public function boot(): void
 }
 ```
 
+## Log in from Playwright or an AI agent
+
+Print a signed link and open it in the browser. No CSRF token and no sidecar UI needed:
+
+```bash
+php artisan sidecar:login-url 1 --base=http://localhost:8082 --redirect=/dashboard
+```
+
+The signature does not include the host, so a link works on any host that serves the app (localhost, a worktree port, a tunnel). `--redirect` must be on the same host. Links expire after `--minutes` (default 60): ask for a new one instead of reusing an old one.
+
 ---
 
 ## Environment Variables
