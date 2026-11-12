@@ -37,6 +37,6 @@ class SidecarUserResource extends JsonResource
             return null;
         }
 
-        return URL::temporarySignedRoute('devsquad-sidecar.login-as', now()->addHour(), ['user' => $id]);
+        return url(URL::temporarySignedRoute('devsquad-sidecar.login-as', now()->addHour(), ['user' => $id], absolute: false));
     }
 }

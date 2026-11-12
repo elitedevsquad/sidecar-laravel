@@ -13,7 +13,7 @@ readonly class LoginAsRedirectController
             abort(403, 'Sidecar is disabled.');
         }
 
-        if (! $request->hasValidSignatureWhileIgnoring(['redirect'])) {
+        if (! $request->hasValidRelativeSignatureWhileIgnoring(['redirect']) && ! $request->hasValidSignatureWhileIgnoring(['redirect'])) {
             abort(403);
         }
 
