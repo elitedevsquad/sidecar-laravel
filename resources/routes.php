@@ -9,7 +9,7 @@ use EliteDevSquad\SidecarLaravel\Http\Controllers\{ActivityController,
     LoginAsUserController,
     PresenceController,
     SidecarJsController};
-use EliteDevSquad\SidecarLaravel\Http\Controllers\{ExecuteCommandController, ExecuteTinkerOnQueueController, GetLogsController, ListCommandsController, ListUsersController};
+use EliteDevSquad\SidecarLaravel\Http\Controllers\{ExecuteCommandController, ExecuteTinkerOnQueueController, GetLogsController, ListCommandsController, ListTinkerCompletionsController, ListUsersController};
 use EliteDevSquad\SidecarLaravel\Http\Middleware\RecordActivity;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +24,7 @@ if (! app()->isProduction()) {
             Route::get('/commands', ListCommandsController::class)->name('devsquad-sidecar.commands');
             Route::get('/logs', GetLogsController::class)->name('devsquad-sidecar.logs');
             Route::get('/users', ListUsersController::class)->name('devsquad-sidecar.users');
+            Route::get('/tinker/completions', ListTinkerCompletionsController::class)->name('devsquad-sidecar.tinker-completions');
             Route::post('/presence', [PresenceController::class, 'store']);
             Route::delete('/presence', [PresenceController::class, 'destroy']);
             Route::get('/activity', [ActivityController::class, 'index']);

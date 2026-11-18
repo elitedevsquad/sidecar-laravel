@@ -51,6 +51,7 @@ class SidecarMiddleware
         return str_starts_with($path, '/__devsquad-sidecar/execute-')
             || $path === '/__devsquad-sidecar/execute'
             || $path === '/__devsquad-sidecar/presence'
+            || str_starts_with($path, '/__devsquad-sidecar/tinker/')
             || str_starts_with($path, '/__devsquad-sidecar/activity');
     }
 
