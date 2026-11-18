@@ -19,19 +19,23 @@ class TinkerCompletions
     /** @var list<string>|null */
     public static ?array $paths = null;
 
+    public static int $perPage = 20;
+
     /**
-     * @return list<array<string, mixed>>
+     * Describes one page of the models, so a big application never answers in one slow request.
+     *
+     * @return array{models: list<array<string, mixed>>, page: int, last_page: int, total: int}
      *
      * @throws ReflectionException
      */
-    public function models(): array
+    public function page(int $page): array
     {
+        $classes = $this->classes();
+        usort($classes, fn (string $a, string $b) => [class_basename($a), $a] <=> [class_basename($b), $b]);
+
         $models = [];
 
-        $classes = $this->classes();
-        usort($classes, fn (string $a, string $b) => strcmp(class_basename($a), class_basename($b)));
-
-        foreach ($classes as $class) {
+        foreach (array_slice($classes, ($page - 1) * static::$perPage, static::$perPage) as $class) {
             $model = $this->describe($class);
 
             if ($model !== null) {
@@ -39,7 +43,12 @@ class TinkerCompletions
             }
         }
 
-        return $models;
+        return [
+            'models' => $models,
+            'page' => $page,
+            'last_page' => max(1, (int) ceil(count($classes) / static::$perPage)),
+            'total' => count($classes),
+        ];
     }
 
     /**
@@ -85,7 +94,7 @@ class TinkerCompletions
 
         $name = trim($namespace[1]).'\\'.$class[1];
 
-        return class_exists($name) ? $name : null;
+        return class_exists($name) && is_subclass_of($name, Model::class) && ! (new ReflectionClass($name))->isAbstract() ? $name : null;
     }
 
     /**
@@ -97,10 +106,6 @@ class TinkerCompletions
     private function describe(string $class): ?array
     {
         $reflection = new ReflectionClass($class);
-
-        if ($reflection->isAbstract() || ! $reflection->isSubclassOf(Model::class)) {
-            return null;
-        }
 
         try {
             /** @var Model $model */

@@ -29,6 +29,7 @@ beforeEach(function () {
 
 afterEach(function () {
     TinkerCompletions::$paths = null;
+    TinkerCompletions::$perPage = 20;
 });
 
 it('lists only the concrete models it finds', function () {
@@ -99,6 +100,57 @@ it('returns no models when the folder does not exist', function () {
     getJson('__devsquad-sidecar/tinker/completions')
         ->assertOk()
         ->assertJsonPath('models', []);
+});
+
+it('splits the models into pages and sends the framework only with the first', function () {
+    TinkerCompletions::$perPage = 1;
+
+    getJson('__devsquad-sidecar/tinker/completions')
+        ->assertJsonPath('models.*.name', ['Article'])
+        ->assertJsonPath('page', 1)
+        ->assertJsonPath('last_page', 2)
+        ->assertJsonPath('total', 2)
+        ->assertJsonStructure(['framework' => ['builder', 'model', 'instance', 'collection', 'facades', 'helpers']]);
+
+    getJson('__devsquad-sidecar/tinker/completions?page=2')
+        ->assertJsonPath('models.*.name', ['Author'])
+        ->assertJsonPath('page', 2)
+        ->assertJsonPath('framework', null);
+});
+
+it('reads what the builder returns, so the editor can follow a chain', function () {
+    $builder = collect(getJson('__devsquad-sidecar/tinker/completions')->json('framework.builder'))->keyBy('name');
+
+    expect($builder['where']['returns'])->toBe('builder')
+        ->and($builder['first']['returns'])->toBe('?model')
+        ->and($builder['firstOrFail']['returns'])->toBe('model')
+        ->and($builder['get']['returns'])->toBe('collection')
+        ->and($builder['count']['returns'])->toBe('int')
+        ->and($builder['whereIn']['params'])->toStartWith('$column, $values');
+});
+
+it('lists the model, instance and collection methods', function () {
+    $framework = getJson('__devsquad-sidecar/tinker/completions')->json('framework');
+    $names = fn (string $key) => collect($framework[$key])->pluck('returns', 'name');
+
+    expect($names('model')['query'])->toBe('builder')
+        ->and($names('model')['all'])->toBe('collection')
+        ->and($names('instance')['fresh'])->toBe('?model')
+        ->and($names('instance')->has('save'))->toBeTrue()
+        ->and($names('instance')->has('__get'))->toBeFalse()
+        ->and($names('collection')['first'])->toBe('model')
+        ->and($names('collection')['map'])->toBe('collection');
+});
+
+it('reads the facades from their docblocks and the helpers of the framework', function () {
+    $framework = getJson('__devsquad-sidecar/tinker/completions')->json('framework');
+    $table = collect($framework['facades']['DB'])->firstWhere('name', 'table');
+
+    expect($table['returns'])->toBe('builder')
+        ->and($table['params'])->toBe('Closure|Builder|Expression|UnitEnum|string $table, string|null $as = …')
+        ->and(collect($framework['facades']['Str'])->pluck('name'))->toContain('slug')
+        ->and(collect($framework['helpers'])->pluck('name'))->toContain('now', 'collect')
+        ->and(collect($framework['helpers'])->pluck('name'))->not->toContain('pest');
 });
 
 it('refuses when tinker is disabled', function () {

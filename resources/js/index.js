@@ -309,8 +309,8 @@ export class Sidecar {
             : { ...data, requestId: requestId ?? null });
     }
 
-    async handleTinkerCompletions({ requestId }) {
-        const data = await this.request("/__devsquad-sidecar/tinker/completions");
+    async handleTinkerCompletions({ requestId, page }) {
+        const data = await this.request("/__devsquad-sidecar/tinker/completions?page=" + (Number(page) || 1));
 
         this.dispatch("sidecar:to:extension:tinkerCompletions", data.error
             ? { error: data.error.message ?? String(data.error), requestId: requestId ?? null }
