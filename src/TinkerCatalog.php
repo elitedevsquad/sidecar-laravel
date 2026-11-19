@@ -18,6 +18,8 @@ class TinkerCatalog
 {
     /**
      * @return array<string, mixed>
+     *
+     * @throws ReflectionException
      */
     public function describe(): array
     {
@@ -35,8 +37,9 @@ class TinkerCatalog
     }
 
     /**
-     * @param class-string $class
+     * @param  class-string  $class
      * @return list<array{name: string, params: string, returns: string}>
+     *
      * @throws ReflectionException
      */
     private function methods(string $class, string $self, bool $static): array
@@ -56,6 +59,7 @@ class TinkerCatalog
 
     /**
      * @return array<string, list<array{name: string, params: string, returns: string}>>
+     *
      * @throws ReflectionException
      */
     private function facades(): array
@@ -96,6 +100,7 @@ class TinkerCatalog
 
     /**
      * @return list<array{name: string, params: string, returns: string}>
+     *
      * @throws ReflectionException
      */
     private function helpers(): array
