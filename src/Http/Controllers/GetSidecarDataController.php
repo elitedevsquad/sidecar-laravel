@@ -56,6 +56,7 @@ class GetSidecarDataController
             'commands' => $this->getLegacyCommands($request),
             'commands_introspection' => true,
             'tinker_variables' => TinkerRunner::supportsShell(),
+            'tinker_completions' => (bool) config('devsquad-sidecar.tinker_enabled', true),
             'branch_url' => $branchUrl,
             'fake_clock' => FakeClock::current()?->format('Y-m-d H:i:s'),
             'fake_clock_offset' => FakeClock::offset(),

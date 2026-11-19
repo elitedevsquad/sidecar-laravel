@@ -186,6 +186,10 @@ export class Sidecar {
             await this.handleListUsers(detail || {});
         });
 
+        window.addEventListener("sidecar:to:page:tinkerCompletions", async ({ detail }) => {
+            await this.handleTinkerCompletions(detail || {});
+        });
+
         window.addEventListener("sidecar:to:page:setTester", ({ detail }) => {
             this.tester = detail?.id ? { id: String(detail.id), name: String(detail.name || "") } : null;
         });
@@ -301,6 +305,14 @@ export class Sidecar {
         const data = await this.request("/__devsquad-sidecar/users?" + params.toString());
 
         this.dispatch("sidecar:to:extension:users", data.error
+            ? { error: data.error.message ?? String(data.error), requestId: requestId ?? null }
+            : { ...data, requestId: requestId ?? null });
+    }
+
+    async handleTinkerCompletions({ requestId, page }) {
+        const data = await this.request("/__devsquad-sidecar/tinker/completions?page=" + (Number(page) || 1));
+
+        this.dispatch("sidecar:to:extension:tinkerCompletions", data.error
             ? { error: data.error.message ?? String(data.error), requestId: requestId ?? null }
             : { ...data, requestId: requestId ?? null });
     }
