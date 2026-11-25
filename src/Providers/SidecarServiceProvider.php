@@ -2,7 +2,7 @@
 
 namespace EliteDevSquad\SidecarLaravel\Providers;
 
-use EliteDevSquad\SidecarLaravel\Console\{CatalogCommand, ClearActivityCommand};
+use EliteDevSquad\SidecarLaravel\Console\{CatalogCommand, ClearActivityCommand, LoginUrlCommand};
 use EliteDevSquad\SidecarLaravel\{FakeClock, Sidecar};
 use EliteDevSquad\SidecarLaravel\Http\Middleware\{FakeClockMiddleware, SidecarInjectJsMiddleware, SidecarMiddleware};
 use Illuminate\Console\Scheduling\Schedule;
@@ -39,7 +39,7 @@ class SidecarServiceProvider extends BaseServiceProvider
         $kernel->appendMiddlewareToGroup('web', SidecarInjectJsMiddleware::class);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([CatalogCommand::class, ClearActivityCommand::class]);
+            $this->commands([CatalogCommand::class, ClearActivityCommand::class, LoginUrlCommand::class]);
 
             FakeClock::applyFromCache();
 

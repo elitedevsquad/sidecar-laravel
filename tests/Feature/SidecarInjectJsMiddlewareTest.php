@@ -1,5 +1,6 @@
 <?php
 
+use EliteDevSquad\SidecarLaravel\Http\Controllers\GetSidecarDataController;
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarInjectJsMiddleware;
 use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\Config;
@@ -72,4 +73,34 @@ it('injects script only once even with multiple </body> occurrences', function (
     $content = $response->getContent();
 
     expect(substr_count((string) $content, '/__devsquad-sidecar/assets/js'))->toBe(1);
+});
+
+it('embeds the data payload so the page needs no request to /data', function () {
+    Config::set('app.name', 'Demo </script><b>');
+    Config::set('devsquad-sidecar.branch_name', '');
+    app()->setBasePath($dir = sys_get_temp_dir().'/sidecar-head-'.uniqid());
+    mkdir($dir.'/.git', recursive: true);
+    file_put_contents($dir.'/.git/HEAD', "ref: refs/heads/feature/inline\n");
+
+    $content = (string) runMiddleware(makeHtmlResponse())->getContent();
+
+    expect($content)->toContain('<script type="application/json" id="sidecar-data">')
+        ->and(substr_count($content, '</script>'))->toBe(2);
+
+    preg_match('#id="sidecar-data">(.*?)</script>#', $content, $match);
+    $data = json_decode($match[1], true);
+
+    expect($data)
+        ->project_name->toBe('Demo </script><b>')
+        ->branch->toBe('feature/inline')
+        ->users->toBe([]);
+});
+
+it('still injects the script when the payload fails', function () {
+    app()->bind(GetSidecarDataController::class, fn () => throw new RuntimeException('boom'));
+
+    $content = (string) runMiddleware(makeHtmlResponse())->getContent();
+
+    expect($content)->not->toContain('sidecar-data')
+        ->toContain('/__devsquad-sidecar/assets/js');
 });

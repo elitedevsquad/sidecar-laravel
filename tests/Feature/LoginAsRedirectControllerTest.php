@@ -2,7 +2,7 @@
 
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use EliteDevSquad\SidecarLaravel\Sidecar;
-use Illuminate\Support\Facades\{Config, URL};
+use Illuminate\Support\Facades\{Artisan, Config, URL};
 use Tests\User;
 
 use function Pest\Laravel\{get, withoutMiddleware};
@@ -59,4 +59,29 @@ it('aborts when sidecar is disabled', function () {
     $url = URL::temporarySignedRoute('devsquad-sidecar.login-as', now()->addHour(), ['user' => $user->id]);
 
     get($url)->assertForbidden();
+});
+
+it('accepts a relative signed link opened from another host', function () {
+    $user = User::first();
+
+    $path = URL::temporarySignedRoute('devsquad-sidecar.login-as', now()->addHour(), ['user' => $user->id], absolute: false);
+
+    get('http://localhost:8082'.$path.'&redirect='.urlencode('http://localhost:8082/dashboard'))
+        ->assertRedirect('http://localhost:8082/dashboard');
+
+    expect(auth()->id())->toBe($user->id);
+});
+
+it('prints a login link that works on the given host', function () {
+    $user = User::first();
+
+    Artisan::call('sidecar:login-url', ['user' => $user->id, '--base' => 'http://localhost:8082', '--redirect' => '/dashboard']);
+
+    $link = trim(Artisan::output());
+
+    expect($link)->toStartWith('http://localhost:8082/__devsquad-sidecar/login-as/'.$user->id);
+
+    get($link)->assertRedirect('http://localhost:8082/dashboard');
+
+    expect(auth()->id())->toBe($user->id);
 });
