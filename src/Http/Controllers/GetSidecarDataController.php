@@ -23,7 +23,16 @@ class GetSidecarDataController
             abort(403, 'Sidecar is disabled.');
         }
 
-        $withoutUsers = $request->boolean('without_users');
+        return response()->json($this->payload($request->boolean('without_users'), $request->boolean('legacy_commands')));
+    }
+
+    /**
+     * Also embedded in every HTML page by SidecarInjectJsMiddleware, so keep it cheap.
+     *
+     * @return array<string, mixed>
+     */
+    public function payload(bool $withoutUsers = true, bool $legacyCommands = false): array
+    {
 
         /** @var string $defaultConnection */
         $defaultConnection = config('database.default', '');
@@ -39,7 +48,7 @@ class GetSidecarDataController
 
         $users = $withoutUsers ? [] : $this->getUsers();
 
-        return response()->json([
+        return [
             'enabled' => true,
             'project_name' => $projectName,
             'authenticated' => true,
@@ -53,7 +62,7 @@ class GetSidecarDataController
             'environment' => app()->environment(),
             'users' => $users,
             'links' => config('devsquad-sidecar.links', []),
-            'commands' => $this->getLegacyCommands($request),
+            'commands' => $this->getLegacyCommands($legacyCommands),
             'commands_introspection' => true,
             'tinker_variables' => TinkerRunner::supportsShell(),
             'branch_url' => $branchUrl,
@@ -69,7 +78,7 @@ class GetSidecarDataController
             'version' => $this->getPackageVersion(),
             'package_updated' => $this->isPackageUpdated() ? 'Yes' : 'No',
             'latest_version' => $this->getLatestVersion(),
-        ]);
+        ];
     }
 
     /**
@@ -99,18 +108,32 @@ class GetSidecarDataController
         /** @var string $branch */
         $branch = config('devsquad-sidecar.branch_name');
 
-        return trim($branch ?: shell_exec('git branch --show-current') ?: '');
+        if ($branch) {
+            return trim($branch);
+        }
+
+        // Reading HEAD skips a git process on every page; worktrees and detached heads fall back to git.
+        $head = @file_get_contents(base_path('.git/HEAD'));
+
+        if (is_string($head) && str_starts_with($head, 'ref: refs/heads/')) {
+            return trim(substr($head, 16));
+        }
+
+        return trim(shell_exec('git branch --show-current') ?: '');
     }
 
     private function getAppTag(): ?string
     {
-        try {
-            $tag = shell_exec('git describe --tags --abbrev=0 2>/dev/null');
+        /** @var string $tag */
+        $tag = Cache::remember('sidecar_app_tag', 60, function (): string {
+            try {
+                return trim(shell_exec('git describe --tags --abbrev=0 2>/dev/null') ?: '');
+            } catch (\Exception) {
+                return '';
+            }
+        });
 
-            return $tag ? trim($tag) : null;
-        } catch (\Exception) {
-            return null;
-        }
+        return $tag !== '' ? $tag : null;
     }
 
     private function getPackageVersion(): string
@@ -151,12 +174,12 @@ class GetSidecarDataController
     /**
      * @return array<int, mixed>
      */
-    private function getLegacyCommands(Request $request): array
+    private function getLegacyCommands(bool $legacyCommands): array
     {
         /** @var array<int, mixed> $configured */
         $configured = config('devsquad-sidecar.commands', []);
 
-        if (! $request->boolean('legacy_commands') || ! config('devsquad-sidecar.commands_enabled', true)) {
+        if (! $legacyCommands || ! config('devsquad-sidecar.commands_enabled', true)) {
             return $configured;
         }
 
