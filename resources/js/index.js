@@ -24,8 +24,15 @@ export class Sidecar {
     }
 
     async init() {
-        await this.fetchInitialData(true);
         this.setupEventListeners();
+
+        // The server embeds the /data payload in the page; fetch only when it is missing (older server, cached HTML).
+        try {
+            this.receive(JSON.parse(document.getElementById("sidecar-data").textContent));
+        } catch (_) {
+            await this.fetchInitialData(true);
+        }
+
         this.injectBadge();
     }
 
@@ -151,6 +158,10 @@ export class Sidecar {
             return;
         }
 
+        this.receive(data);
+    }
+
+    receive(data) {
         if (!this.consoleShown) {
             console.log(
                 `\n%cDevSquad Sidecar Enabled\n%cProject: ${data.project_name}`,
