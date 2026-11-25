@@ -75,6 +75,7 @@ it('returns full JSON payload', function () {
         ],
         'commands_introspection' => true,
         'tinker_variables' => true,
+        'tinker_completions' => true,
         'fake_clock_ttl' => true,
         'health_enabled' => true,
         'branch_url' => 'http://repo/branch',
