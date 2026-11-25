@@ -239,6 +239,7 @@ class TinkerCompletions
     private function columns(Model $model): array
     {
         try {
+            /** @var list<array{name: string, type: string}> $columns */
             $columns = $model->getConnection()->getSchemaBuilder()->getColumns($model->getTable());
         } catch (Throwable) {
             return [];
@@ -247,8 +248,8 @@ class TinkerCompletions
         $casts = $model->getCasts();
 
         return array_map(fn (array $column): array => [
-            'name' => (string) $column['name'],
-            'type' => (string) $column['type'],
+            'name' => $column['name'],
+            'type' => $column['type'],
             'cast' => isset($casts[$column['name']]) ? class_basename($casts[$column['name']]) : null,
         ], $columns);
     }

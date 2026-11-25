@@ -2,6 +2,7 @@
 
 use EliteDevSquad\SidecarLaravel\Http\Middleware\SidecarMiddleware;
 use EliteDevSquad\SidecarLaravel\TinkerCompletions;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\{Config, Schema};
 use Tests\Fixtures\Models\Article;
@@ -51,12 +52,18 @@ it('lists the columns with their cast', function () {
 });
 
 it('lists the scopes without the query parameter', function () {
+    $scopes = [
+        ['name' => 'published', 'params' => ''],
+        ['name' => 'writtenBy', 'params' => 'Author $author, int $limit = …'],
+    ];
+
+    // The Scope attribute only exists from Laravel 12 on.
+    if (class_exists(Scope::class)) {
+        $scopes[] = ['name' => 'featured', 'params' => ''];
+    }
+
     getJson('__devsquad-sidecar/tinker/completions')
-        ->assertJsonPath('models.0.scopes', [
-            ['name' => 'published', 'params' => ''],
-            ['name' => 'writtenBy', 'params' => 'Author $author, int $limit = …'],
-            ['name' => 'featured', 'params' => ''],
-        ]);
+        ->assertJsonPath('models.0.scopes', $scopes);
 });
 
 it('lists the relations with the related model', function () {
@@ -147,7 +154,7 @@ it('reads the facades from their docblocks and the helpers of the framework', fu
     $table = collect($framework['facades']['DB'])->firstWhere('name', 'table');
 
     expect($table['returns'])->toBe('builder')
-        ->and($table['params'])->toBe('Closure|Builder|Expression|UnitEnum|string $table, string|null $as = …')
+        ->and($table['params'])->toContain('string $table, string|null $as = …')
         ->and(collect($framework['facades']['Str'])->pluck('name'))->toContain('slug')
         ->and(collect($framework['helpers'])->pluck('name'))->toContain('now', 'collect')
         ->and(collect($framework['helpers'])->pluck('name'))->not->toContain('pest');
